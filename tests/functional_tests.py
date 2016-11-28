@@ -1,8 +1,9 @@
 import os
+import time
+
 from selenium import webdriver
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.common.keys import Keys
-
 
 import unittest
 

@@ -1,3 +1,5 @@
+import re
+
 from django.test import TestCase
 from django.core.urlresolvers import resolve
 from django.http import HttpRequest
@@ -6,6 +8,11 @@ from django.template.loader import render_to_string
 from writing.views import home_page  
 
 class HomePageTest(TestCase):
+    def assertEqualHtml(self,html_a,html_b):
+        csrf_regex = r'<input[^>]+csrfmiddlewaretoken[^>]+>'
+        html_a=re.sub(csrf_regex, '<input type="hidden" name="csrfmiddlewaretoken" value="">', html_a)
+        html_b=re.sub(csrf_regex, '<input type="hidden" name="csrfmiddlewaretoken" value="">', html_b)
+        self.assertEqual(html_a,html_b)
 
     def test_root_url_resolves_to_home_page_view(self):
         found = resolve('/')  
@@ -14,6 +21,19 @@ class HomePageTest(TestCase):
     def test_home_page_returns_correct_html(self):
         request = HttpRequest()  
         response = home_page(request)  
-        expected_html = render_to_string('home.html')
+        expected_html = render_to_string('writing/home.html',request=request)
+        self.assertEqualHtml(response.content.decode(),expected_html)
 
-        self.assertEqual(response.content.decode(),expected_html)
+    def test_home_page_can_save_a_POST_request(self):
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['item_text'] = 'A new list item'
+
+        response = home_page(request)
+
+        self.assertIn('A new list item', response.content.decode())
+
+        expected_html = render_to_string('writing/home.html',
+                                         {'new_item_text':  'A new list item'},request=request)
+
+        self.assertEqualHtml(response.content.decode(), expected_html)
