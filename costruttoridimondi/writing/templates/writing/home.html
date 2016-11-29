@@ -3,17 +3,12 @@
     <title>Writing</title>
   </head>
   <body>
-    <h1>Writing</h1>
+    <h1>Start a new story</h1>
 
     <form method="POST">
-      <input name="section_text" id="id_new_section"  placeholder="Enter a scene title"/>
+      <input name="section_text" id="id_new_section"  placeholder="Enter a scene"/>
       {% csrf_token %}
     </form>
-    <table id="id_list_table">
-      {% for section in section_list %}
-      <tr><td>{{ forloop.counter }}: {{ section.text }}</td></tr>
-      {% endfor %}
-    </table>
   </body>
 </html>
 

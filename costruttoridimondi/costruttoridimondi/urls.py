@@ -20,5 +20,6 @@ import writing.views
 
 urlpatterns = [
     #url(r'^admin/', admin.site.urls),
-    url(r'^$', writing.views.home_page, name='home')
+    url(r'^$', writing.views.home_page, name='home'),
+    url(r'^writing/the-only-story/$', writing.views.view_list, name='view_list'),
 ]

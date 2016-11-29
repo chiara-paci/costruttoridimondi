@@ -41,7 +41,7 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox = self.browser.find_element_by_id('id_new_section')
         self.assertEqual(
             inputbox.get_attribute('placeholder'),
-            'Enter a scene title'
+            'Enter a scene'
         )
         inputbox.send_keys(text)
         inputbox.send_keys(u'\ue007')
@@ -57,7 +57,7 @@ class NewVisitorTest(LiveServerTestCase):
         # She notices the page title and header mention Writing
         self.assertIn('Writing', self.browser.title)  
         header_text = self.browser.find_element_by_tag_name('h1').text
-        self.assertIn('Writing', header_text)
+        self.assertIn('Start a new story', header_text)
 
         # She is invited to enter a scene (title) straight away
 
@@ -86,7 +86,7 @@ class NewVisitorTest(LiveServerTestCase):
 
         # She notices that her list has a unique URL
         edith_list_url = self.browser.current_url
-        self.assertRegex(edith_list_url, '/lists/.+')
+        self.assertRegex(edith_list_url, '/writing/.+')
 
         # Now a new user, Francis, comes along to the site.
 

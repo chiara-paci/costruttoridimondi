@@ -44,30 +44,12 @@ class HomePageTest(TestCase):
         response = views.home_page(request)
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/')
-
-        # self.assertIn('A new list section', response.content.decode())
-
-        # expected_html = render_to_string('writing/home.html',
-        #                                  {'new_section_text':  'A new list section'},
-        #                                  request=request)
-
-        # self.assertEqualHtml(response.content.decode(), expected_html)
+        self.assertEqual(response['location'], '/writing/the-only-story/')
 
     def test_home_page_only_saves_items_when_necessary(self):
         request = HttpRequest()
         views.home_page(request)
         self.assertEqual(models.Section.objects.count(), 0)
-
-    def test_home_page_displays_all_list_sections(self):
-        models.Section.objects.create(text='sectioney 1')
-        models.Section.objects.create(text='sectioney 2')
-
-        request = HttpRequest()
-        response = views.home_page(request)
-
-        self.assertIn('sectioney 1', response.content.decode())
-        self.assertIn('sectioney 2', response.content.decode())
 
 class SectionModelTest(TestCase):
     def test_saving_and_retrieving_sections(self):
@@ -86,3 +68,18 @@ class SectionModelTest(TestCase):
         second_saved_section = saved_sections[1]
         self.assertEqual(first_saved_section.text, 'The first (ever) list section')
         self.assertEqual(second_saved_section.text, 'Section the second')
+
+class ListViewTest(TestCase):
+
+    def test_uses_list_template(self):
+        response = self.client.get('/writing/the-only-story/')
+        self.assertTemplateUsed(response, 'writing/list.html')
+
+    def test_displays_all_sections(self):
+        models.Section.objects.create(text='sectioney 1')
+        models.Section.objects.create(text='sectioney 2')
+
+        response = self.client.get('/writing/the-only-story/')  
+
+        self.assertContains(response, 'sectioney 1')  
+        self.assertContains(response, 'sectioney 2') 
