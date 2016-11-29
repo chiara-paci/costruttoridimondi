@@ -25,19 +25,49 @@ class HomePageTest(TestCase):
         expected_html = render_to_string('writing/home.html',request=request)
         self.assertEqualHtml(response.content.decode(),expected_html)
 
-    def test_home_page_can_save_a_POST_request(self):
+    def test_home_page_can_save_a_post_request(self):
         request = HttpRequest()
         request.method = 'POST'
-        request.POST['item_text'] = 'A new list item'
+        request.POST['section_text'] = 'A new list section'
 
         response = views.home_page(request)
 
-        self.assertIn('A new list item', response.content.decode())
+        self.assertEqual(models.Section.objects.count(), 1)  
+        new_section = models.Section.objects.first()  
+        self.assertEqual(new_section.text, 'A new list section')
 
-        expected_html = render_to_string('writing/home.html',
-                                         {'new_item_text':  'A new list item'},request=request)
+    def test_home_page_redirect_after_post(self):
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['section_text'] = 'A new list section'
 
-        self.assertEqualHtml(response.content.decode(), expected_html)
+        response = views.home_page(request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/')
+
+        # self.assertIn('A new list section', response.content.decode())
+
+        # expected_html = render_to_string('writing/home.html',
+        #                                  {'new_section_text':  'A new list section'},
+        #                                  request=request)
+
+        # self.assertEqualHtml(response.content.decode(), expected_html)
+
+    def test_home_page_only_saves_items_when_necessary(self):
+        request = HttpRequest()
+        views.home_page(request)
+        self.assertEqual(models.Section.objects.count(), 0)
+
+    def test_home_page_displays_all_list_sections(self):
+        models.Section.objects.create(text='sectioney 1')
+        models.Section.objects.create(text='sectioney 2')
+
+        request = HttpRequest()
+        response = views.home_page(request)
+
+        self.assertIn('sectioney 1', response.content.decode())
+        self.assertIn('sectioney 2', response.content.decode())
 
 class SectionModelTest(TestCase):
     def test_saving_and_retrieving_sections(self):
