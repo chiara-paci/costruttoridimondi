@@ -5,7 +5,8 @@ from django.core.urlresolvers import resolve
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 
-from writing.views import home_page  
+from . import views
+from . import models
 
 class HomePageTest(TestCase):
     def assertEqualHtml(self,html_a,html_b):
@@ -16,11 +17,11 @@ class HomePageTest(TestCase):
 
     def test_root_url_resolves_to_home_page_view(self):
         found = resolve('/')  
-        self.assertEqual(found.func, home_page)  
+        self.assertEqual(found.func, views.home_page)  
 
     def test_home_page_returns_correct_html(self):
         request = HttpRequest()  
-        response = home_page(request)  
+        response = views.home_page(request)  
         expected_html = render_to_string('writing/home.html',request=request)
         self.assertEqualHtml(response.content.decode(),expected_html)
 
@@ -29,7 +30,7 @@ class HomePageTest(TestCase):
         request.method = 'POST'
         request.POST['item_text'] = 'A new list item'
 
-        response = home_page(request)
+        response = views.home_page(request)
 
         self.assertIn('A new list item', response.content.decode())
 
@@ -37,3 +38,21 @@ class HomePageTest(TestCase):
                                          {'new_item_text':  'A new list item'},request=request)
 
         self.assertEqualHtml(response.content.decode(), expected_html)
+
+class SectionModelTest(TestCase):
+    def test_saving_and_retrieving_sections(self):
+        first_section = models.Section()
+        first_section.text = 'The first (ever) list section'
+        first_section.save()
+
+        second_section = models.Section()
+        second_section.text = 'Section the second'
+        second_section.save()
+
+        saved_sections = models.Section.objects.all()
+        self.assertEqual(saved_sections.count(), 2)
+
+        first_saved_section = saved_sections[0]
+        second_saved_section = saved_sections[1]
+        self.assertEqual(first_saved_section.text, 'The first (ever) list section')
+        self.assertEqual(second_saved_section.text, 'Section the second')
