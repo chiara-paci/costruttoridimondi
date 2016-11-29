@@ -25,36 +25,30 @@ class HomePageTest(TestCase):
         expected_html = render_to_string('writing/home.html',request=request)
         self.assertEqualHtml(response.content.decode(),expected_html)
 
-    def test_home_page_can_save_a_post_request(self):
-        request = HttpRequest()
-        request.method = 'POST'
-        request.POST['section_text'] = 'A new list section'
+class NewStoryTest(TestCase):
+    def test_saving_a_post_request(self):
+        self.client.post(
+            '/writing/new',
+            data={'section_text': 'A new section'}
+        )
+        self.assertEqual(models.Section.objects.count(), 1)
+        new_section = models.Section.objects.first()
+        self.assertEqual(new_section.text, 'A new section')
 
-        response = views.home_page(request)
-
-        self.assertEqual(models.Section.objects.count(), 1)  
-        new_section = models.Section.objects.first()  
-        self.assertEqual(new_section.text, 'A new list section')
 
     def test_home_page_redirect_after_post(self):
-        request = HttpRequest()
-        request.method = 'POST'
-        request.POST['section_text'] = 'A new list section'
+        response = self.client.post(
+            '/writing/new',
+            data={'section_text': 'A new section'}
+        )
 
-        response = views.home_page(request)
+        self.assertRedirects(response, '/writing/the-only-story/')
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/writing/the-only-story/')
-
-    def test_home_page_only_saves_items_when_necessary(self):
-        request = HttpRequest()
-        views.home_page(request)
-        self.assertEqual(models.Section.objects.count(), 0)
 
 class SectionModelTest(TestCase):
     def test_saving_and_retrieving_sections(self):
         first_section = models.Section()
-        first_section.text = 'The first (ever) list section'
+        first_section.text = 'The first (ever) story section'
         first_section.save()
 
         second_section = models.Section()
@@ -66,14 +60,14 @@ class SectionModelTest(TestCase):
 
         first_saved_section = saved_sections[0]
         second_saved_section = saved_sections[1]
-        self.assertEqual(first_saved_section.text, 'The first (ever) list section')
+        self.assertEqual(first_saved_section.text, 'The first (ever) story section')
         self.assertEqual(second_saved_section.text, 'Section the second')
 
-class ListViewTest(TestCase):
+class StoryViewTest(TestCase):
 
-    def test_uses_list_template(self):
+    def test_uses_story_template(self):
         response = self.client.get('/writing/the-only-story/')
-        self.assertTemplateUsed(response, 'writing/list.html')
+        self.assertTemplateUsed(response, 'writing/story.html')
 
     def test_displays_all_sections(self):
         models.Section.objects.create(text='sectioney 1')

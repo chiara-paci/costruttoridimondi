@@ -8,12 +8,13 @@ from . import models
 
 @requires_csrf_token
 def home_page(request):
-    if request.method == 'POST':
-        new_section_text = request.POST['section_text']  
-        models.Section.objects.create(text=new_section_text)  
-        return redirect("/writing/the-only-story/")
     return render(request, 'writing/home.html')
 
-def view_list(request): 
+def view_story(request): 
     section_list=models.Section.objects.all()
-    return render(request, 'writing/list.html', {"section_list": section_list})
+    return render(request, 'writing/story.html', {"section_list": section_list})
+
+def new_story(request): 
+    new_section_text = request.POST['section_text']  
+    models.Section.objects.create(text=new_section_text)  
+    return redirect("/writing/the-only-story/")

@@ -5,7 +5,7 @@
   <body>
     <h1>Start a new story</h1>
 
-    <form method="POST">
+    <form method="POST" action="/writing/new">
       <input name="section_text" id="id_new_section"  placeholder="Enter a scene"/>
       {% csrf_token %}
     </form>
