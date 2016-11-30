@@ -1,17 +1,7 @@
-<html>
-  <head>
-    <title>Writing</title>
-  </head>
-  <body>
-    <h1>Start a new story</h1>
+{% extends "writing/base.html" %}
 
-    <form method="POST" action="/writing/new">
-      <center>
-      <input name="section_text" id="id_new_section"  placeholder="Enter a scene"/>
-      </center>
-      {% csrf_token %}
-    </form>
-  </body>
-</html>
+{% block header_text %}Start a new story{% endblock %}
+
+{% block form_action %}/writing/new{% endblock %}
 
 

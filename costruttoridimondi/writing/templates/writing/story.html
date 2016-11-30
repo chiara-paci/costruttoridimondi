@@ -1,20 +1,15 @@
-<html>
-  <head>
-    <title>Writing</title>
-  </head>
-  <body>
-    <h1>Writing</h1>
+{% extends "writing/base.html" %}
 
-    <form method="POST" action="/writing/{{ story.id }}/add_section">
-      <input name="section_text" id="id_new_section"  placeholder="Enter a scene"/>
-      {% csrf_token %}
-    </form>
-    <table id="id_list_table">
-      {% for section in story.section_set.all %}
-      <tr><td>{{ forloop.counter }}: {{ section.text }}</td></tr>
-      {% endfor %}
-    </table>
-  </body>
-</html>
+{% block header_text %}Your story{% endblock %}
+
+{% block form_action %}/writing/{{ story.id }}/add_section{% endblock %}
+
+{% block table %}
+<table id="id_list_table">
+  {% for section in story.section_set.all %}
+  <tr><td>{{ forloop.counter }}: {{ section.text }}</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
 
 
