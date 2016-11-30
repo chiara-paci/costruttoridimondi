@@ -32,14 +32,18 @@ class NewVisitorTest(StaticLiveServerTestCase):
         for arg in sys.argv:  
             if 'liveserver' in arg:  
                 cls.server_url = 'http://' + arg.split('=')[1]  
+                cls.liveserver=True
                 return  
         super().setUpClass()  
         cls.server_url = cls.live_server_url
+        cls.liveserver=False
 
     @classmethod
     def tearDownClass(cls):
-        if cls.server_url == cls.live_server_url:
-            super().tearDownClass()
+        if cls.liveserver: return
+        #print(type(cls.live_server_url))
+        # if cls.server_url == cls.live_server_url:
+        super().tearDownClass()
 
 
     def setUp(self):  
