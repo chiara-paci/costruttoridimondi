@@ -6,6 +6,7 @@ from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.common.keys import Keys
 
 from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 import unittest
 
@@ -23,7 +24,7 @@ def build_browser():
     return browser
     
 
-class NewVisitorTest(LiveServerTestCase):  
+class NewVisitorTest(StaticLiveServerTestCase):  
 
     def setUp(self):  
         self.browser = build_browser()

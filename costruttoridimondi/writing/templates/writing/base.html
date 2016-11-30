@@ -1,17 +1,28 @@
+<!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <title>Writing</title>
+    <link href="/static/writing/writing.css" rel="stylesheet"/>
   </head>
   <body>
-    <h1>{% block header_text %}{% endblock %}</h1>
-
-    <form method="POST" action="{% block form_action %}{% endblock %}">
-      <input name="section_text" id="id_new_section"  placeholder="Enter a scene"/>
-      {% csrf_token %}
-    </form>
-
-    {% block table %}
-    {% endblock %}
+    <div class="content">
+      <div class="formbox">
+	<h1>{% block header_text %}{% endblock %}</h1>
+	
+	<div class="form">
+	  <form method="POST" action="{% block form_action %}{% endblock %}">
+	    <input name="section_text" id="id_new_section"  placeholder="Enter a scene"/>
+	    {% csrf_token %}
+	  </form>
+	</div>
+      </div>
+      
+      <div class="tablebox">
+	{% block table %}
+	{% endblock %}
+      </div>
+    </div>
   </body>
 </html>
 
