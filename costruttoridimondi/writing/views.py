@@ -15,6 +15,7 @@ def view_story(request):
     return render(request, 'writing/story.html', {"section_list": section_list})
 
 def new_story(request): 
+    story=models.Story.objects.create()
     new_section_text = request.POST['section_text']  
-    models.Section.objects.create(text=new_section_text)  
+    models.Section.objects.create(text=new_section_text,story=story)  
     return redirect("/writing/the-only-story/")
