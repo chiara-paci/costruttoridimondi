@@ -1,0 +1,15 @@
+{% extends "writing/base.html" %}
+
+{% block header_text %}Your story{% endblock %}
+
+{% block form_action %}/writing/{{ story.id }}/add_section{% endblock %}
+
+{% block table %}
+<table id="id_list_table">
+  {% for section in story.section_set.all %}
+  <tr><td>{{ forloop.counter }}: {{ section.text }}</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
+
+
