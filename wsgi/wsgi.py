@@ -16,7 +16,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 sys.path.append(os.path.abspath(os.path.join(BASE_DIR, 'costruttoridimondi'))
 
-print sys.path[-1]
+print(sys.path[-1])
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "costruttoridimondi.settings")
 
