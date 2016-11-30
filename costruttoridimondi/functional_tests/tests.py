@@ -48,7 +48,7 @@ class NewVisitorTest(LiveServerTestCase):
 
         time.sleep(3)
 
-    def test_can_start_a_list_for_one_user(self):  
+    def test_can_start_a_story_for_one_user(self):  
         # Edith has heard about a cool new online writing app. She goes
         # to check out its homepage
 
@@ -109,7 +109,7 @@ class NewVisitorTest(LiveServerTestCase):
 
         # Francis gets his own unique URL
         francis_list_url = self.browser.current_url
-        self.assertRegex(francis_list_url, '/lists/.+')
+        self.assertRegex(francis_list_url, '/writing/.+')
         self.assertNotEqual(francis_list_url, edith_list_url)
 
         # Again, there is no trace of Edith's list

@@ -10,12 +10,19 @@ from . import models
 def home_page(request):
     return render(request, 'writing/home.html')
 
-def view_story(request): 
-    section_list=models.Section.objects.all()
-    return render(request, 'writing/story.html', {"section_list": section_list})
+def view_story(request,story_id):
+    story=models.Story.objects.get(id=story_id)
+    return render(request, 'writing/story.html', {"story": story})
 
 def new_story(request): 
     story=models.Story.objects.create()
     new_section_text = request.POST['section_text']  
     models.Section.objects.create(text=new_section_text,story=story)  
-    return redirect("/writing/the-only-story/")
+    return redirect("/writing/%d/" % story.id)
+
+def add_section(request, story_id): 
+    story=models.Story.objects.get(id=story_id)
+    new_section_text = request.POST['section_text']  
+    models.Section.objects.create(text=new_section_text,story=story)  
+    return redirect("/writing/%d/" % story.id)
+

@@ -5,12 +5,12 @@
   <body>
     <h1>Writing</h1>
 
-    <form method="POST" action="/writing/new">
+    <form method="POST" action="/writing/{{ story.id }}/add_section">
       <input name="section_text" id="id_new_section"  placeholder="Enter a scene"/>
       {% csrf_token %}
     </form>
     <table id="id_list_table">
-      {% for section in section_list %}
+      {% for section in story.section_set.all %}
       <tr><td>{{ forloop.counter }}: {{ section.text }}</td></tr>
       {% endfor %}
     </table>

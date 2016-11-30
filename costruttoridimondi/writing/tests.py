@@ -41,8 +41,34 @@ class NewStoryTest(TestCase):
             '/writing/new',
             data={'section_text': 'A new section'}
         )
+        new_story=models.Story.objects.first()
+        self.assertRedirects(response, '/writing/%d/' % new_story.id)
 
-        self.assertRedirects(response, '/writing/the-only-story/')
+    def test_can_save_a_POST_request_to_an_existing_story(self):
+        other_story = models.Story.objects.create()
+        correct_story = models.Story.objects.create()
+
+        self.client.post(
+            '/writing/%d/add_section' % (correct_story.id,),
+            data={'section_text': 'A new section for an existing story'}
+        )
+
+        self.assertEqual(models.Section.objects.count(), 1)
+        new_section = models.Section.objects.first()
+        self.assertEqual(new_section.text, 'A new section for an existing story')
+        self.assertEqual(new_section.story, correct_story)
+
+
+    def test_redirects_to_story_view(self):
+        other_story = models.Story.objects.create()
+        correct_story = models.Story.objects.create()
+
+        response = self.client.post(
+            '/writing/%d/add_section' % (correct_story.id,),
+            data={'section_text': 'A new section for an existing story'}
+        )
+
+        self.assertRedirects(response, '/writing/%d/' % (correct_story.id,))
 
 
 class SectionAndStoryModelTest(TestCase):
@@ -76,15 +102,28 @@ class SectionAndStoryModelTest(TestCase):
 class StoryViewTest(TestCase):
 
     def test_uses_story_template(self):
-        response = self.client.get('/writing/the-only-story/')
+        story=models.Story.objects.create()
+        response = self.client.get('/writing/%d/' % story.id )
         self.assertTemplateUsed(response, 'writing/story.html')
 
-    def test_displays_all_sections(self):
+    def test_displays_only_sections_for_that_story(self):
         story=models.Story.objects.create()
         models.Section.objects.create(text='sectioney 1',story=story)
         models.Section.objects.create(text='sectioney 2',story=story)
 
-        response = self.client.get('/writing/the-only-story/')  
+        story2=models.Story.objects.create()
+        models.Section.objects.create(text='sectioney 3',story=story2)
+        models.Section.objects.create(text='sectioney 4',story=story2)
+
+        response = self.client.get('/writing/%d/' % story.id )  
 
         self.assertContains(response, 'sectioney 1')  
         self.assertContains(response, 'sectioney 2') 
+        self.assertNotContains(response, 'sectioney 3')  
+        self.assertNotContains(response, 'sectioney 4') 
+
+    def test_passes_correct_story_to_template(self):
+        other_story = models.Story.objects.create()
+        correct_story = models.Story.objects.create()
+        response = self.client.get('/writing/%d/' % (correct_story.id,))
+        self.assertEqual(response.context['story'], correct_story)
