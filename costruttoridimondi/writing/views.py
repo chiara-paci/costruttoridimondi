@@ -35,5 +35,5 @@ def new_story(request):
     except ValidationError as e:
         story.delete()
         return render(request, 'writing/home.html',{"error":"You can't have an empty section"})
-    return redirect("/writing/%d/" % story.id)
+    return redirect(story)
 

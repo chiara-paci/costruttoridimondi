@@ -4,6 +4,10 @@ from django.core.exceptions import ValidationError
 from .. import models
 
 class SectionAndStoryModelTest(TestCase):
+    def test_get_absolute_url(self):
+        story = models.Story.objects.create()
+        self.assertEqual(story.get_absolute_url(), '/writing/%d/' % (story.id,))
+
     def test_saving_and_retrieving_sections(self):
         story=models.Story()
         story.save()
