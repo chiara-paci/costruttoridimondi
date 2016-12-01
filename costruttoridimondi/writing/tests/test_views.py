@@ -112,3 +112,10 @@ class StoryViewTest(TestCase):
 
         self.assertRedirects(response, '/writing/%d/' % (correct_story.id,))
 
+    def test_validation_errors_are_sent_back_to_story(self):
+        story=models.Story.objects.create()
+        response = self.client.post('/writing/%d/' % story.id, data={'section_text': ''})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'writing/story.html')
+        expected_error = escape("You can't have an empty section")
+        self.assertContains(response, expected_error)

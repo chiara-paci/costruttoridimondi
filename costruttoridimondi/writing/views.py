@@ -11,14 +11,19 @@ from . import models
 def home_page(request):
     return render(request, 'writing/home.html')
 
-
 def view_story(request,story_id):
     story=models.Story.objects.get(id=story_id)
+    error=None
     if request.method == 'POST':
         new_section_text = request.POST['section_text']  
-        models.Section.objects.create(text=new_section_text,story=story)  
-        return redirect("/writing/%d/" % story.id)
-    return render(request, 'writing/story.html', {"story": story})
+        section=models.Section(text=new_section_text,story=story)  
+        try:
+            section.full_clean()
+            section.save()
+            return redirect("/writing/%d/" % story.id)
+        except ValidationError as e:
+            error="You can't have an empty section"
+    return render(request, 'writing/story.html', {"story": story,"error":error})
 
 def new_story(request): 
     story=models.Story.objects.create()
