@@ -9,7 +9,7 @@ from selenium.webdriver.common.keys import Keys
 from django.test import LiveServerTestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
-import unittest
+from unittest import skip
 
 BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(os.path.dirname(BASE_DIR))
@@ -23,9 +23,9 @@ def build_browser():
     browser = webdriver.Firefox(firefox_binary=FirefoxBinary(firefox_path=FIREFOX_PATH))
     #browser.implicitly_wait(30)
     return browser
-    
 
-class NewVisitorTest(StaticLiveServerTestCase):  
+
+class FunctionalTest(StaticLiveServerTestCase):  
 
     @classmethod
     def setUpClass(cls):  
@@ -68,6 +68,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
         inputbox.send_keys(u'\ue007')
 
         time.sleep(3)
+
+class NewVisitorTest(FunctionalTest):  
 
     def test_can_start_a_story_for_one_user(self):  
         # Edith has heard about a cool new online writing app. She goes
@@ -138,6 +140,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.assertNotIn('Buy peacock feathers', page_text)
         self.assertIn('Buy milk', page_text)
 
+class LayoutAndStylingTest(FunctionalTest):  
+
     def test_layout_and_styling(self):
         # Edith goes to the home page
         self.browser.get(self.server_url)
@@ -160,3 +164,22 @@ class NewVisitorTest(StaticLiveServerTestCase):
             512,
             delta=5
         )
+
+class ItemValidationTest(FunctionalTest):  
+
+    @skip
+    def test_cannot_add_empty_section(self):
+        # Edith goes to the home page and accidentally tries to submit
+        # an empty list item. She hits Enter on the empty input box
+
+        # The home page refreshes, and there is an error message saying
+        # that list items cannot be blank
+
+        # She tries again with some text for the item, which now works
+
+        # Perversely, she now decides to submit a second blank list item
+
+        # She receives a similar warning on the list page
+
+        # And she can correct it by filling some text in
+        self.fail('write me!')
