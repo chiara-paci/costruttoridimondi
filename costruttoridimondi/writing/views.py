@@ -16,8 +16,8 @@ def view_story(request,story_id):
     story=models.Story.objects.get(id=story_id)
     error=None
     if request.method == 'POST':
-        new_section_text = request.POST['section_text']  
-        section=models.Section(text=new_section_text,story=story)  
+        new_text = request.POST['text']  
+        section=models.Section(text=new_text,story=story)  
         try:
             section.full_clean()
             section.save()
@@ -28,8 +28,8 @@ def view_story(request,story_id):
 
 def new_story(request): 
     story=models.Story.objects.create()
-    new_section_text = request.POST['section_text']  
-    section=models.Section(text=new_section_text,story=story)  
+    new_text = request.POST['text']  
+    section=models.Section(text=new_text,story=story)  
     try:
         section.full_clean()
         section.save()

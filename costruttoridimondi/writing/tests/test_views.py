@@ -30,13 +30,13 @@ class HomePageTest(TestCase):
     def test_home_page_redirect_after_post(self):
         response = self.client.post(
             '/writing/new',
-            data={'section_text': 'A new section'}
+            data={'text': 'A new section'}
         )
         new_story=models.Story.objects.first()
         self.assertRedirects(response, '/writing/%d/' % new_story.id)
 
     def test_validation_errors_are_sent_back_to_home_page_template(self):
-        response = self.client.post('/writing/new', data={'section_text': ''})
+        response = self.client.post('/writing/new', data={'text': ''})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'writing/home.html')
         expected_error = escape("You can't have an empty section")
@@ -78,7 +78,7 @@ class StoryViewTest(TestCase):
 
         self.client.post(
             '/writing/%d/' % (correct_story.id,),
-            data={'section_text': 'A new section for an existing story'}
+            data={'text': 'A new section for an existing story'}
         )
 
         self.assertEqual(models.Section.objects.count(), 1)
@@ -93,28 +93,28 @@ class StoryViewTest(TestCase):
 
         response = self.client.post(
             '/writing/%d/' % (correct_story.id,),
-            data={'section_text': 'A new section for an existing story'}
+            data={'text': 'A new section for an existing story'}
         )
 
         self.assertRedirects(response, '/writing/%d/' % (correct_story.id,))
 
     def test_validation_errors_are_sent_back_to_story(self):
         story=models.Story.objects.create()
-        response = self.client.post('/writing/%d/' % story.id, data={'section_text': ''})
+        response = self.client.post('/writing/%d/' % story.id, data={'text': ''})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'writing/story.html')
         expected_error = escape("You can't have an empty section")
         self.assertContains(response, expected_error)
 
     def test_invalid_section_arent_saved(self):
-        self.client.post('/writing/new', data={'section_text': ''})
+        self.client.post('/writing/new', data={'text': ''})
         self.assertEqual(models.Story.objects.count(), 0)
         self.assertEqual(models.Section.objects.count(), 0)
 
     def test_saving_a_post_request(self):
         self.client.post(
             '/writing/new',
-            data={'section_text': 'A new section'}
+            data={'text': 'A new section'}
         )
         self.assertEqual(models.Section.objects.count(), 1)
         new_section = models.Section.objects.first()
