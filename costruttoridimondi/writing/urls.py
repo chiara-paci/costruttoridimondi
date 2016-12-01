@@ -22,5 +22,4 @@ urlpatterns = [
     #url(r'^admin/', admin.site.urls),
     url(r'^new$', views.new_story, name='new_story'),
     url(r'^(\d+)/$', views.view_story, name='view_story'),
-    url(r'^(\d+)/add_section$', views.add_section, name='add_section'),
 ]

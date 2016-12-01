@@ -26,17 +26,6 @@ class HomePageTest(TestCase):
         expected_html = render_to_string('writing/home.html',request=request)
         self.assertEqualHtml(response.content.decode(),expected_html)
 
-class NewStoryTest(TestCase):
-    def test_saving_a_post_request(self):
-        self.client.post(
-            '/writing/new',
-            data={'section_text': 'A new section'}
-        )
-        self.assertEqual(models.Section.objects.count(), 1)
-        new_section = models.Section.objects.first()
-        self.assertEqual(new_section.text, 'A new section')
-
-
     def test_home_page_redirect_after_post(self):
         response = self.client.post(
             '/writing/new',
@@ -44,32 +33,6 @@ class NewStoryTest(TestCase):
         )
         new_story=models.Story.objects.first()
         self.assertRedirects(response, '/writing/%d/' % new_story.id)
-
-    def test_can_save_a_POST_request_to_an_existing_story(self):
-        other_story = models.Story.objects.create()
-        correct_story = models.Story.objects.create()
-
-        self.client.post(
-            '/writing/%d/add_section' % (correct_story.id,),
-            data={'section_text': 'A new section for an existing story'}
-        )
-
-        self.assertEqual(models.Section.objects.count(), 1)
-        new_section = models.Section.objects.first()
-        self.assertEqual(new_section.text, 'A new section for an existing story')
-        self.assertEqual(new_section.story, correct_story)
-
-
-    def test_redirects_to_story_view(self):
-        other_story = models.Story.objects.create()
-        correct_story = models.Story.objects.create()
-
-        response = self.client.post(
-            '/writing/%d/add_section' % (correct_story.id,),
-            data={'section_text': 'A new section for an existing story'}
-        )
-
-        self.assertRedirects(response, '/writing/%d/' % (correct_story.id,))
 
     def test_validation_errors_are_sent_back_to_home_page_template(self):
         response = self.client.post('/writing/new', data={'section_text': ''})
@@ -82,6 +45,17 @@ class NewStoryTest(TestCase):
         self.client.post('/writing/new', data={'section_text': ''})
         self.assertEqual(models.Story.objects.count(), 0)
         self.assertEqual(models.Section.objects.count(), 0)
+
+    def test_saving_a_post_request(self):
+        self.client.post(
+            '/writing/new',
+            data={'section_text': 'A new section'}
+        )
+        self.assertEqual(models.Section.objects.count(), 1)
+        new_section = models.Section.objects.first()
+        self.assertEqual(new_section.text, 'A new section')
+
+
 
 class StoryViewTest(TestCase):
 
@@ -111,3 +85,30 @@ class StoryViewTest(TestCase):
         correct_story = models.Story.objects.create()
         response = self.client.get('/writing/%d/' % (correct_story.id,))
         self.assertEqual(response.context['story'], correct_story)
+
+    def test_can_save_a_post_request_to_an_existing_story(self):
+        other_story = models.Story.objects.create()
+        correct_story = models.Story.objects.create()
+
+        self.client.post(
+            '/writing/%d/' % (correct_story.id,),
+            data={'section_text': 'A new section for an existing story'}
+        )
+
+        self.assertEqual(models.Section.objects.count(), 1)
+        new_section = models.Section.objects.first()
+        self.assertEqual(new_section.text, 'A new section for an existing story')
+        self.assertEqual(new_section.story, correct_story)
+
+
+    def test_post_redirects_to_story_view(self):
+        other_story = models.Story.objects.create()
+        correct_story = models.Story.objects.create()
+
+        response = self.client.post(
+            '/writing/%d/' % (correct_story.id,),
+            data={'section_text': 'A new section for an existing story'}
+        )
+
+        self.assertRedirects(response, '/writing/%d/' % (correct_story.id,))
+

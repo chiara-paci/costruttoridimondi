@@ -11,8 +11,13 @@ from . import models
 def home_page(request):
     return render(request, 'writing/home.html')
 
+
 def view_story(request,story_id):
     story=models.Story.objects.get(id=story_id)
+    if request.method == 'POST':
+        new_section_text = request.POST['section_text']  
+        models.Section.objects.create(text=new_section_text,story=story)  
+        return redirect("/writing/%d/" % story.id)
     return render(request, 'writing/story.html', {"story": story})
 
 def new_story(request): 
@@ -25,11 +30,5 @@ def new_story(request):
     except ValidationError as e:
         story.delete()
         return render(request, 'writing/home.html',{"error":"You can't have an empty section"})
-    return redirect("/writing/%d/" % story.id)
-
-def add_section(request, story_id): 
-    story=models.Story.objects.get(id=story_id)
-    new_section_text = request.POST['section_text']  
-    models.Section.objects.create(text=new_section_text,story=story)  
     return redirect("/writing/%d/" % story.id)
 
