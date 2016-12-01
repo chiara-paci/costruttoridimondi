@@ -51,10 +51,10 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.assertIn(row_text, [row.text for row in rows])
 
     def add_section(self,text):
-        inputbox = self.browser.find_element_by_id('id_new_section')
+        inputbox = self.browser.find_element_by_id('id_section_text')
         self.assertEqual(
             inputbox.get_attribute('placeholder'),
-            'Enter a scene'
+            'Enter a section'
         )
         inputbox.send_keys(text)
         inputbox.send_keys(u'\ue007')

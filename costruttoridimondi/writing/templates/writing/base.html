@@ -12,7 +12,7 @@
 	
 	<div class="form">
 	  <form method="POST" action="{% block form_action %}{% endblock %}">
-	    <input name="section_text" id="id_new_section"  placeholder="Enter a scene"/>
+	    <input name="section_text" id="id_section_text"  placeholder="Enter a section"/>
 	    {% csrf_token %}
 	    {% if error %}
             <div class="has-error">{{ error }}</div>
