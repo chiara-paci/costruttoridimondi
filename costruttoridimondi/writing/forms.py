@@ -1,4 +1,25 @@
 from django import forms
 
-class SectionForm(forms.Form):
-    section_text = forms.CharField()
+from . import models
+
+EMPTY_SECTION_ERROR = "You can't have an empty section"
+
+class SectionForm(forms.models.ModelForm):
+    # section_text = forms.CharField(
+    #     widget=forms.fields.TextInput(attrs={
+    #         'placeholder': 'Enter a section',
+    #         'class': "form-control input-lg"
+    #     }),)
+    
+    class Meta:
+        model = models.Section
+        fields = ("text",)
+        widgets = {
+            "text":forms.fields.TextInput(attrs={
+                'placeholder': 'Enter a section',
+                'class': "form-control input-lg"
+            })
+        }
+        error_messages = {
+            'text': {'required': EMPTY_SECTION_ERROR}
+        }
