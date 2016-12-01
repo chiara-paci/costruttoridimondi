@@ -5,8 +5,8 @@ from django.core.urlresolvers import resolve
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 
-from . import views
-from . import models
+from .. import views
+from .. import models
 
 class HomePageTest(TestCase):
     def assertEqualHtml(self,html_a,html_b):
