@@ -5,6 +5,6 @@ from django.db import models
 class Story(models.Model): pass
 
 class Section(models.Model):
-    text = models.TextField(default="")
+    text = models.TextField()
     story = models.ForeignKey(Story, default=None)
 

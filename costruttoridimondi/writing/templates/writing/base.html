@@ -14,6 +14,9 @@
 	  <form method="POST" action="{% block form_action %}{% endblock %}">
 	    <input name="section_text" id="id_new_section"  placeholder="Enter a scene"/>
 	    {% csrf_token %}
+	    {% if error %}
+            <div class="has-error">{{ error }}</div>
+	    {% endif %}
 	  </form>
 	</div>
       </div>

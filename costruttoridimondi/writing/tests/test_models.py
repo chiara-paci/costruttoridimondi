@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.core.exceptions import ValidationError
 
 from .. import models
 
@@ -30,3 +31,9 @@ class SectionAndStoryModelTest(TestCase):
         self.assertEqual(second_saved_section.text, 'Section the second')
         self.assertEqual(second_saved_section.story, story)
 
+    def test_cannot_save_empty_sections(self):
+        story = models.Story.objects.create()
+        section = models.Section(story=story, text='')
+        with self.assertRaises(ValidationError):
+            section.save()
+            section.full_clean()

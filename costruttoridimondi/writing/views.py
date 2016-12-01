@@ -1,6 +1,7 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from django.views.decorators.csrf import requires_csrf_token
+from django.core.exceptions import ValidationError
 
 # Create your views here.
 
@@ -17,7 +18,13 @@ def view_story(request,story_id):
 def new_story(request): 
     story=models.Story.objects.create()
     new_section_text = request.POST['section_text']  
-    models.Section.objects.create(text=new_section_text,story=story)  
+    section=models.Section(text=new_section_text,story=story)  
+    try:
+        section.full_clean()
+        section.save()
+    except ValidationError as e:
+        story.delete()
+        return render(request, 'writing/home.html',{"error":"You can't have an empty section"})
     return redirect("/writing/%d/" % story.id)
 
 def add_section(request, story_id): 

@@ -14,7 +14,7 @@ class SectionValidationTest(base.FunctionalTest):
         # that list items cannot be blank
 
         error = self.browser.find_element_by_css_selector('.has-error')  
-        self.assertEqual(error.text, "You can't have an empty list item")
+        self.assertEqual(error.text, "You can't have an empty section")
 
         # She tries again with some text for the item, which now works
         self.add_section('Buy milk')

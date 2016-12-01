@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.core.urlresolvers import resolve
 from django.http import HttpRequest
 from django.template.loader import render_to_string
+from django.utils.html import escape
 
 from .. import views
 from .. import models
@@ -69,6 +70,18 @@ class NewStoryTest(TestCase):
         )
 
         self.assertRedirects(response, '/writing/%d/' % (correct_story.id,))
+
+    def test_validation_errors_are_sent_back_to_home_page_template(self):
+        response = self.client.post('/writing/new', data={'section_text': ''})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'writing/home.html')
+        expected_error = escape("You can't have an empty section")
+        self.assertContains(response, expected_error)
+
+    def test_invalid_section_arent_saved(self):
+        self.client.post('/writing/new', data={'section_text': ''})
+        self.assertEqual(models.Story.objects.count(), 0)
+        self.assertEqual(models.Section.objects.count(), 0)
 
 class StoryViewTest(TestCase):
 
