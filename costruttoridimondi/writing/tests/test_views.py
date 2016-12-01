@@ -35,13 +35,6 @@ class HomePageTest(TestCase):
         new_story=models.Story.objects.first()
         self.assertRedirects(response, '/writing/%d/' % new_story.id)
 
-    def test_validation_errors_are_sent_back_to_home_page_template(self):
-        response = self.client.post('/writing/new', data={'text': ''})
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'writing/home.html')
-        expected_error = escape("You can't have an empty section")
-        self.assertContains(response, expected_error)
-
 
 class StoryViewTest(TestCase):
 
@@ -98,14 +91,6 @@ class StoryViewTest(TestCase):
 
         self.assertRedirects(response, '/writing/%d/' % (correct_story.id,))
 
-    def test_validation_errors_are_sent_back_to_story(self):
-        story=models.Story.objects.create()
-        response = self.client.post('/writing/%d/' % story.id, data={'text': ''})
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'writing/story.html')
-        expected_error = escape("You can't have an empty section")
-        self.assertContains(response, expected_error)
-
     def test_invalid_section_arent_saved(self):
         self.client.post('/writing/new', data={'text': ''})
         self.assertEqual(models.Story.objects.count(), 0)
@@ -120,4 +105,60 @@ class StoryViewTest(TestCase):
         new_section = models.Section.objects.first()
         self.assertEqual(new_section.text, 'A new section')
 
+    # def test_validation_errors_are_sent_back_to_home_page_template(self):
+    #     response = self.client.post('/writing/new', data={'text': ''})
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertTemplateUsed(response, 'writing/home.html')
+    #     expected_error = escape("You can't have an empty section")
+    #     self.assertContains(response, expected_error)
 
+    def test_for_invalid_input_renders_home_template(self):
+        response = self.client.post('/writing/new', data={'text': ''})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'writing/home.html')
+
+
+    def test_validation_errors_are_shown_on_home_page(self):
+        response = self.client.post('/writing/new', data={'text': ''})
+        self.assertContains(response, escape(forms.EMPTY_SECTION_ERROR))
+
+    def test_for_invalid_input_passes_form_to_template(self):
+        response = self.client.post('/writing/new', data={'text': ''})
+        self.assertIsInstance(response.context['form'], forms.SectionForm)
+        
+    def test_displays_section_form(self):
+        story = models.Story.objects.create()
+        response = self.client.get('/writing/%d/' % (story.id,))
+        self.assertIsInstance(response.context['form'], forms.SectionForm)
+        self.assertContains(response, 'name="text"')
+
+    def post_invalid_input(self):
+        story=models.Story.objects.create()
+        response = self.client.post('/writing/%d/' % story.id, data={'text': ''})
+        return response
+
+    ###
+    # def test_validation_errors_are_sent_back_to_story(self):
+    #     response=self.post_invalid_input()
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertTemplateUsed(response, 'writing/story.html')
+    #     expected_error = escape("You can't have an empty section")
+    #     self.assertContains(response, expected_error)
+
+
+    def test_for_invalid_input_nothing_saved_to_db(self):
+        self.post_invalid_input()
+        self.assertEqual(models.Section.objects.count(), 0)
+
+    def test_for_invalid_input_renders_story_template(self):
+        response = self.post_invalid_input()
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'writing/story.html')
+
+    def test_for_invalid_input_passes_form_to_template(self):
+        response = self.post_invalid_input()
+        self.assertIsInstance(response.context['form'], forms.SectionForm)
+
+    def test_for_invalid_input_shows_error_on_page(self):
+        response = self.post_invalid_input()
+        self.assertContains(response, escape(forms.EMPTY_SECTION_ERROR))

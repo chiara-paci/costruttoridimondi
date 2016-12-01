@@ -14,27 +14,20 @@ def home_page(request):
 
 def view_story(request,story_id):
     story=models.Story.objects.get(id=story_id)
-    error=None
+    form=forms.SectionForm()
     if request.method == 'POST':
-        new_text = request.POST['text']  
-        section=models.Section(text=new_text,story=story)  
-        try:
-            section.full_clean()
-            section.save()
-            return redirect("/writing/%d/" % story.id)
-        except ValidationError as e:
-            error="You can't have an empty section"
-    return render(request, 'writing/story.html', {"story": story,"error":error})
+        form=forms.SectionForm(data=request.POST)
+        if form.is_valid():
+            models.Section.objects.create(text=request.POST["text"],story=story)  
+            return redirect(story)
+    return render(request, 'writing/story.html', {"story": story,"form": form})
 
 def new_story(request): 
-    story=models.Story.objects.create()
-    new_text = request.POST['text']  
-    section=models.Section(text=new_text,story=story)  
-    try:
-        section.full_clean()
-        section.save()
-    except ValidationError as e:
-        story.delete()
-        return render(request, 'writing/home.html',{"error":"You can't have an empty section"})
-    return redirect(story)
-
+    form = forms.SectionForm(data=request.POST)  
+    if form.is_valid():  
+        story=models.Story.objects.create()
+        new_text = request.POST['text']  
+        section=models.Section.objects.create(text=new_text,story=story)  
+        return redirect(story)
+    else:
+        return render(request, 'writing/home.html', {"form": form}) 
