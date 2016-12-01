@@ -6,10 +6,11 @@ from django.core.exceptions import ValidationError
 # Create your views here.
 
 from . import models
+from . import forms
 
 @requires_csrf_token
 def home_page(request):
-    return render(request, 'writing/home.html')
+    return render(request, 'writing/home.html', {"form": forms.SectionForm()})
 
 def view_story(request,story_id):
     story=models.Story.objects.get(id=story_id)

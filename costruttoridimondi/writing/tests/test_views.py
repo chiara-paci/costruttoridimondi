@@ -8,23 +8,24 @@ from django.utils.html import escape
 
 from .. import views
 from .. import models
+from .. import forms
 
 class HomePageTest(TestCase):
+    maxDiff=None
+
     def assertEqualHtml(self,html_a,html_b):
         csrf_regex = r'<input[^>]+csrfmiddlewaretoken[^>]+>'
         html_a=re.sub(csrf_regex, '<input type="hidden" name="csrfmiddlewaretoken" value="">', html_a)
         html_b=re.sub(csrf_regex, '<input type="hidden" name="csrfmiddlewaretoken" value="">', html_b)
-        self.assertEqual(html_a,html_b)
+        self.assertMultiLineEqual(html_a,html_b)
 
-    def test_root_url_resolves_to_home_page_view(self):
-        found = resolve('/')  
-        self.assertEqual(found.func, views.home_page)  
+    def test_home_page_renders_home_template(self):
+        response = self.client.get('/')
+        self.assertTemplateUsed(response, 'writing/home.html')  
 
-    def test_home_page_returns_correct_html(self):
-        request = HttpRequest()  
-        response = views.home_page(request)  
-        expected_html = render_to_string('writing/home.html',request=request)
-        self.assertEqualHtml(response.content.decode(),expected_html)
+    def test_home_page_uses_section_form(self):
+        response = self.client.get('/')
+        self.assertIsInstance(response.context['form'], forms.SectionForm)
 
     def test_home_page_redirect_after_post(self):
         response = self.client.post(
@@ -40,21 +41,6 @@ class HomePageTest(TestCase):
         self.assertTemplateUsed(response, 'writing/home.html')
         expected_error = escape("You can't have an empty section")
         self.assertContains(response, expected_error)
-
-    def test_invalid_section_arent_saved(self):
-        self.client.post('/writing/new', data={'section_text': ''})
-        self.assertEqual(models.Story.objects.count(), 0)
-        self.assertEqual(models.Section.objects.count(), 0)
-
-    def test_saving_a_post_request(self):
-        self.client.post(
-            '/writing/new',
-            data={'section_text': 'A new section'}
-        )
-        self.assertEqual(models.Section.objects.count(), 1)
-        new_section = models.Section.objects.first()
-        self.assertEqual(new_section.text, 'A new section')
-
 
 
 class StoryViewTest(TestCase):
@@ -119,3 +105,19 @@ class StoryViewTest(TestCase):
         self.assertTemplateUsed(response, 'writing/story.html')
         expected_error = escape("You can't have an empty section")
         self.assertContains(response, expected_error)
+
+    def test_invalid_section_arent_saved(self):
+        self.client.post('/writing/new', data={'section_text': ''})
+        self.assertEqual(models.Story.objects.count(), 0)
+        self.assertEqual(models.Section.objects.count(), 0)
+
+    def test_saving_a_post_request(self):
+        self.client.post(
+            '/writing/new',
+            data={'section_text': 'A new section'}
+        )
+        self.assertEqual(models.Section.objects.count(), 1)
+        new_section = models.Section.objects.first()
+        self.assertEqual(new_section.text, 'A new section')
+
+
