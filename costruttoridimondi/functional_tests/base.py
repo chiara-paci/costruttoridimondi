@@ -50,8 +50,16 @@ class FunctionalTest(StaticLiveServerTestCase):
         rows = table.find_elements_by_tag_name('tr')
         self.assertIn(row_text, [row.text for row in rows])
 
-    def add_section(self,text):
+    def get_section_inputbox(self):
         inputbox = self.browser.find_element_by_id('id_text')
+        return inputbox
+
+    def get_error_box(self):
+        error = self.browser.find_element_by_css_selector('.has-error')
+        return error
+
+    def add_section(self,text):
+        inputbox = self.get_section_inputbox()
         self.assertEqual(
             inputbox.get_attribute('placeholder'),
             'Enter a section'

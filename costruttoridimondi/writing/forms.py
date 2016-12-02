@@ -36,3 +36,5 @@ class ExistingStorySectionForm(SectionForm):
             e.error_dict = {'text': [DUPLICATE_SECTION_ERROR]}
             self._update_errors(e)
 
+    def save(self):
+        return forms.models.ModelForm.save(self)

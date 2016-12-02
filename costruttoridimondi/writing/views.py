@@ -14,11 +14,11 @@ def home_page(request):
 
 def view_story(request,story_id):
     story=models.Story.objects.get(id=story_id)
-    form=forms.SectionForm()
+    form=forms.ExistingStorySectionForm(story)
     if request.method == 'POST':
-        form=forms.SectionForm(data=request.POST)
+        form=forms.ExistingStorySectionForm(story,data=request.POST)
         if form.is_valid():
-            form.save(for_story=story)
+            form.save()
             return redirect(story)
     return render(request, 'writing/story.html', {"story": story,"form": form})
 

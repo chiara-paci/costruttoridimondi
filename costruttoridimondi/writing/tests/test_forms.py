@@ -35,7 +35,6 @@ class SectionFormTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors['text'], [forms.DUPLICATE_SECTION_ERROR])
 
-
 class ExistingStorySectionFormTest(TestCase):
     def test_form_renders_section_text_input(self):
         story = models.Story.objects.create()
@@ -67,3 +66,8 @@ class ExistingStorySectionFormTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(form.errors['text'], [forms.DUPLICATE_SECTION_ERROR])
 
+    def test_form_save(self):
+        story = models.Story.objects.create()
+        form = forms.ExistingStorySectionForm(story, data={'text': 'hi'})
+        new_item = form.save()
+        self.assertEqual(new_item, models.Section.objects.all()[0])
