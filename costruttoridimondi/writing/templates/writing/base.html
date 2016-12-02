@@ -11,9 +11,12 @@
 	<h1>{% block header_text %}{% endblock %}</h1>
 	
 	<div class="form">
-	  <form method="POST" action="{% block form_action %}{% endblock %}">
-	    <input name="section_text" id="id_new_section"  placeholder="Enter a scene"/>
+	  <form method="POST" action="{% block form_action %}{% endblock %}" novalidate="">
+	    {{ form.text }}
 	    {% csrf_token %}
+	    {% if form.errors %}
+            <div class="has-error">{{ form.text.errors }}</div>
+	    {% endif %}
 	  </form>
 	</div>
       </div>
@@ -23,6 +26,16 @@
 	{% endblock %}
       </div>
     </div>
+
+    <script src="/static/writing/jquery-3.1.1.min.js"></script>
+    <script src="/static/writing/story.js"></script>
+    
+    <script>
+      $(document).ready(function () {
+      window.Writing.initialize();
+      });
+    </script>
+
   </body>
 </html>
 

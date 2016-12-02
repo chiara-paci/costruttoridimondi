@@ -1,28 +1,33 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from django.views.decorators.csrf import requires_csrf_token
+from django.core.exceptions import ValidationError
 
 # Create your views here.
 
 from . import models
+from . import forms
 
 @requires_csrf_token
 def home_page(request):
-    return render(request, 'writing/home.html')
+    return render(request, 'writing/home.html', {"form": forms.SectionForm()})
 
 def view_story(request,story_id):
     story=models.Story.objects.get(id=story_id)
-    return render(request, 'writing/story.html', {"story": story})
+    form=forms.ExistingStorySectionForm(story)
+    if request.method == 'POST':
+        form=forms.ExistingStorySectionForm(story,data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(story)
+    return render(request, 'writing/story.html', {"story": story,"form": form})
 
 def new_story(request): 
-    story=models.Story.objects.create()
-    new_section_text = request.POST['section_text']  
-    models.Section.objects.create(text=new_section_text,story=story)  
-    return redirect("/writing/%d/" % story.id)
+    form = forms.SectionForm(data=request.POST)  
+    if form.is_valid():  
+        story=models.Story.objects.create()
+        form.save(for_story=story)
+        return redirect(story)
+    return render(request, 'writing/home.html', {"form": form}) 
 
-def add_section(request, story_id): 
-    story=models.Story.objects.get(id=story_id)
-    new_section_text = request.POST['section_text']  
-    models.Section.objects.create(text=new_section_text,story=story)  
-    return redirect("/writing/%d/" % story.id)
 
