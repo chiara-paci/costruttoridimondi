@@ -4,6 +4,8 @@ from . import base
 
 class SectionValidationTest(base.FunctionalTest):  
 
+    wait_time=2
+
     def test_cannot_add_empty_section(self):
         # Edith goes to the home page and accidentally tries to submit
         # an empty list item. She hits Enter on the empty input box
