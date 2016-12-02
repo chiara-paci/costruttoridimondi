@@ -60,7 +60,6 @@ class SectionModelTest(TestCase):
         with self.assertRaises(ValidationError):
             section = models.Section(story=story, text='bla')
             section.full_clean()
-            #section.save()
 
     def test_can_save_same_section_to_different_stories(self):
         story1 = models.Story.objects.create()

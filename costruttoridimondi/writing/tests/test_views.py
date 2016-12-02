@@ -1,4 +1,5 @@
 import re
+from unittest import skip
 
 from django.test import TestCase
 from django.core.urlresolvers import resolve
@@ -137,15 +138,6 @@ class StoryViewTest(TestCase):
         response = self.client.post('/writing/%d/' % story.id, data={'text': ''})
         return response
 
-    ###
-    # def test_validation_errors_are_sent_back_to_story(self):
-    #     response=self.post_invalid_input()
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertTemplateUsed(response, 'writing/story.html')
-    #     expected_error = escape("You can't have an empty section")
-    #     self.assertContains(response, expected_error)
-
-
     def test_for_invalid_input_nothing_saved_to_db(self):
         self.post_invalid_input()
         self.assertEqual(models.Section.objects.count(), 0)
@@ -162,3 +154,18 @@ class StoryViewTest(TestCase):
     def test_for_invalid_input_shows_error_on_page(self):
         response = self.post_invalid_input()
         self.assertContains(response, escape(forms.EMPTY_SECTION_ERROR))
+
+    @skip
+    def test_duplicate_section_validation_errors_end_up_on_story_page(self):
+        story1 = models.Story.objects.create()
+        section1 = models.Section.objects.create(story=story1, text='textey')
+
+        response = self.client.post(
+            '/writing/%d/' % (story1.id,),
+            data={'text': 'textey'}
+        )
+
+        expected_error = escape("You've already got this in your story")
+        self.assertContains(response, expected_error)
+        self.assertTemplateUsed(response, 'story.html')
+        self.assertEqual(models.Section.objects.all().count(), 1)
