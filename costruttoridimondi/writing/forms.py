@@ -23,3 +23,7 @@ class SectionForm(forms.models.ModelForm):
         error_messages = {
             'text': {'required': EMPTY_SECTION_ERROR}
         }
+
+    def save(self, for_story):
+        self.instance.story = for_story
+        return super().save()

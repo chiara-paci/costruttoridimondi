@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from .. import forms
+from .. import models
 
 class SectionFormTest(TestCase):
 
@@ -16,4 +17,12 @@ class SectionFormTest(TestCase):
             form.errors['text'],
             [forms.EMPTY_SECTION_ERROR]
         )
+
+    def test_form_save_handles_saving_to_a_story(self):
+        story=models.Story.objects.create()    
+        form = forms.SectionForm(data={'text': 'do me'})
+        new_section = form.save(for_story=story)
+        self.assertEqual(new_section, models.Section.objects.first())
+        self.assertEqual(new_section.text, 'do me')
+        self.assertEqual(new_section.story, story)
 

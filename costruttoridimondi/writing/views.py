@@ -18,7 +18,7 @@ def view_story(request,story_id):
     if request.method == 'POST':
         form=forms.SectionForm(data=request.POST)
         if form.is_valid():
-            models.Section.objects.create(text=request.POST["text"],story=story)  
+            form.save(for_story=story)
             return redirect(story)
     return render(request, 'writing/story.html', {"story": story,"form": form})
 
@@ -26,8 +26,8 @@ def new_story(request):
     form = forms.SectionForm(data=request.POST)  
     if form.is_valid():  
         story=models.Story.objects.create()
-        new_text = request.POST['text']  
-        section=models.Section.objects.create(text=new_text,story=story)  
+        form.save(for_story=story)
         return redirect(story)
-    else:
-        return render(request, 'writing/home.html', {"form": form}) 
+    return render(request, 'writing/home.html', {"form": form}) 
+
+
