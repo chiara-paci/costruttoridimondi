@@ -32,14 +32,20 @@ from .local_settings import *
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    #'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "writing.apps.WritingConfig",
+    "profiles.apps.ProfilesConfig"
 ]
+
+AUTH_USER_MODEL = 'profiles.CostruttoriUser'
+AUTHENTICATION_BACKENDS = (
+    'profiles.authentication.PasswordlessAuthenticationBackend',
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -124,3 +130,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../static'))
 
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'chiara.paci@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+EMAIL_USE_TLS = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, '../var/mail')
