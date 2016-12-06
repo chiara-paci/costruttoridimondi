@@ -30,8 +30,7 @@ class FunctionalTest(StaticLiveServerTestCase):
             if 'liveserver' in arg:  
                 cls.server_url = 'http://' + arg.split('=')[1]  
                 cls.liveserver=True
-            if 'emaildir' in arg:
-                cls.emaildir = arg.split('=')[1]
+                cls.emaildir = "/srv/test.costruttoridimondi.org/var/mail"
         if cls.liveserver:
             return  
         super().setUpClass()  
@@ -51,6 +50,10 @@ class FunctionalTest(StaticLiveServerTestCase):
 
     def tearDown(self):  
         self.browser.quit()
+
+    def wait_browser(self):
+        time.sleep(self.wait_time)
+
 
     def wait_for_email(self, test_email, subject):
         if not self.liveserver:
@@ -150,13 +153,13 @@ class FunctionalTest(StaticLiveServerTestCase):
         inputbox.send_keys(text)
         inputbox.send_keys(u'\ue007')
 
-        time.sleep(self.wait_time)
+        self.wait_browser()
 
     def send_email(self,email):
         inputbox= self.browser.find_element_by_name('email')
         inputbox.send_keys(email)
         inputbox.send_keys(u'\ue007')
-        time.sleep(self.wait_time)
+        self.wait_browser()
 
     def build_browser(self):
         browser = webdriver.Firefox(firefox_binary=FirefoxBinary(firefox_path=self.firefox_path))
