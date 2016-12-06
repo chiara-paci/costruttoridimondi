@@ -69,6 +69,12 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         time.sleep(self.wait_time)
 
+    def send_email(self,email):
+        inputbox= self.browser.find_element_by_name('email')
+        inputbox.send_keys(email)
+        inputbox.send_keys(u'\ue007')
+        time.sleep(self.wait_time)
+
     def build_browser(self):
         browser = webdriver.Firefox(firefox_binary=FirefoxBinary(firefox_path=self.firefox_path))
         #browser.implicitly_wait(30)
