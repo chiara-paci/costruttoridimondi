@@ -12,13 +12,30 @@
 	<a class="navbar-brand" href="/">Costruttori di Mondi</a>
       </div>
       <div class="right">
-	<form class="navbar-form navbar-right" method="POST" action="#">
+	{% if user.email %}
+	Logged in as {{ user.email }}
+        <a href="#">Log out</a>
+	{% else %}
+	<form class="navbar-form navbar-right" method="POST" action="{% url 'send_login_email' %}">
           <span>Enter email to log in:</span>
           <input class="form-control" name="email" type="email" />
           {% csrf_token %}
 	</form>
+	{% endif %}
       </div>
     </nav>
+
+    {% if messages %}
+    <mark>
+        {% for message in messages %}
+           {% if message.tags == 'success' %}
+           <div class="success">{{ message }}</div>
+           {% else %}
+           <div class="warning">{{ message }}</div>
+           {% endif %}
+        {% endfor %}
+    </mark>
+    {% endif %}
 
     <main class="content">
       <div class="formbox">

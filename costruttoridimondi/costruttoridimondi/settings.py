@@ -39,13 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "writing.apps.WritingConfig",
-    #"profiles.apps.ProfilesConfig"
+    "profiles.apps.ProfilesConfig"
 ]
 
-# AUTH_USER_MODEL = 'profiles.CostruttoriUser'
-# AUTHENTICATION_BACKENDS = (
-#     'profiles.authentication.PasswordlessAuthenticationBackend',
-# )
+AUTH_USER_MODEL = 'profiles.User'
+AUTHENTICATION_BACKENDS = (
+    'profiles.authentication.PasswordlessAuthenticationBackend',
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
