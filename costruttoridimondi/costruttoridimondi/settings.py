@@ -39,13 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "writing.apps.WritingConfig",
-    "profiles.apps.ProfilesConfig"
+    #"profiles.apps.ProfilesConfig"
 ]
 
-AUTH_USER_MODEL = 'profiles.CostruttoriUser'
-AUTHENTICATION_BACKENDS = (
-    'profiles.authentication.PasswordlessAuthenticationBackend',
-)
+# AUTH_USER_MODEL = 'profiles.CostruttoriUser'
+# AUTHENTICATION_BACKENDS = (
+#     'profiles.authentication.PasswordlessAuthenticationBackend',
+# )
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -137,3 +137,20 @@ EMAIL_USE_TLS = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, '../var/mail')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+        },
+    },
+    'root': {'level': 'INFO'},
+}

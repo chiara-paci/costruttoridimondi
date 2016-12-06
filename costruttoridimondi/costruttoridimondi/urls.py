@@ -18,11 +18,11 @@ from django.contrib import admin
 
 import writing.views
 import writing.urls
-import profiles.urls
+#import profiles.urls
 
 urlpatterns = [
     #url(r'^admin/', admin.site.urls),
     url(r'^$', writing.views.home_page, name='home'),
     url(r'^writing/', include(writing.urls)),
-    url(r'^profiles/', include(profiles.urls)),
+    #url(r'^profiles/', include(profiles.urls)),
 ]
