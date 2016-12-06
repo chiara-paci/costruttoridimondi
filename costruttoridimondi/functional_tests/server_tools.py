@@ -1,8 +1,3 @@
-# ssh chiara@test.costruttoridimondi.org /srv/test.costruttoridimondi.org/costruttoridimondi/manage.py collectstatic
-
-# '{manage_py} flush --noinput'
-# '{manage_py} create_session {email}
-
 import paramiko
 
 class RunCommand(object):
@@ -32,7 +27,7 @@ class CreateSession(RunCommand):
         cmd=self.manage+" create_session "+str(email)
         stdin, stdout, stderr = self.client.exec_command(cmd)
         stdin.close()
-        key=stdout.read()
+        key=stdout.read().strip().decode()
         return key
 
 class ResetDatabase(RunCommand):
@@ -46,21 +41,7 @@ def create_session_on_server(host, email):
     cmd=CreateSession(host)
     return cmd(email)
 
-    # client.connect(ip,username=USER,timeout=3)
-    # client.save_host_keys(known_hosts)
-    # interact = client.invoke_shell(term="xterm",width=1000)
-
-    # return subprocess.check_output(
-    #     [
-    #         'fab',
-    #         'create_session_on_server:email={}'.format(email),   
-    #         '--host=elspeth@{}'.format(host),  
-    #         '--hide=everything,status',  
-    #     ],
-    #     cwd=THIS_FOLDER
-    # ).decode().strip()  
-
-
 def reset_database(host):
     cmd=ResetDatabase(host)
     return cmd()
+

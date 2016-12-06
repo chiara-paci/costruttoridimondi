@@ -27,11 +27,10 @@ class MyListsTest(base.FunctionalTest):
         self.wait_browser()
         self.browser.add_cookie(dict(
             name=settings.SESSION_COOKIE_NAME,
-            value=session.session_key, 
+            value=session_key, 
             path='/',
         ))
 
-    @skip
     def test_logged_in_users_stories_are_saved_as_my_stories(self):
         email = 'edith@example.com'
         self.browser.get(self.server_url)
