@@ -2,6 +2,8 @@ import os
 import time
 import sys
 
+from unittest import skip
+
 from selenium import webdriver
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.common.keys import Keys
@@ -10,7 +12,7 @@ from django.test import LiveServerTestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core import mail
 
-from unittest import skip
+from .server_tools import reset_database
 
 BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(os.path.dirname(BASE_DIR))
@@ -28,7 +30,8 @@ class FunctionalTest(StaticLiveServerTestCase):
         cls.liveserver=False
         for arg in sys.argv:  
             if 'liveserver' in arg:  
-                cls.server_url = 'http://' + arg.split('=')[1]  
+                cls.server_host = arg.split('=')[1] 
+                cls.server_url = 'http://' + cls.server_host
                 cls.liveserver=True
                 cls.emaildir = "/srv/test.costruttoridimondi.org/var/mail"
         if cls.liveserver:
@@ -46,6 +49,8 @@ class FunctionalTest(StaticLiveServerTestCase):
         super().tearDownClass()
 
     def setUp(self):  
+        if self.liveserver:
+            reset_database(self.server_host)
         self.browser = self.build_browser()
 
     def tearDown(self):  
