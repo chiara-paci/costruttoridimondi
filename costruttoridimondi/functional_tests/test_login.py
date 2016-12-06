@@ -1,7 +1,6 @@
 import re
 import time
 
-from django.core import mail
 
 from . import base
 
@@ -24,16 +23,17 @@ class LoginTest(base.FunctionalTest):
         self.assertIn('Check your email', body.text)
 
         # She checks her email and finds a message
-        email = mail.outbox[0]  
-        self.assertIn(TEST_EMAIL, email.to)
-        self.assertEqual(email.subject, SUBJECT)
+        #email = mail.outbox[0]  
+        body = self.wait_for_email(TEST_EMAIL, SUBJECT)
+        #self.assertIn(TEST_EMAIL, email.to)
+        #self.assertEqual(email.subject, SUBJECT)
 
         # It has a url link in it
-        self.assertIn('Use this link to log in', email.body)
-        url_search = re.search(r'http://.+/.+$', email.body)
+        self.assertIn('Use this link to log in', body)
+        url_search = re.search(r'http://.+/.+$', body)
         if not url_search:
             self.fail(
-                'Could not find url in email body:\n{}'.format(email.body)
+                'Could not find url in email body:\n{}'.format(body)
             )
         url = url_search.group(0)
         self.assertIn(self.server_url, url)
