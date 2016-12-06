@@ -45,6 +45,16 @@ class FunctionalTest(StaticLiveServerTestCase):
     def tearDown(self):  
         self.browser.quit()
 
+    def assert_logged_in(self, email):
+        self.browser.find_element_by_link_text('Log out')
+        navbar = self.browser.find_element_by_css_selector('.navbar')
+        self.assertIn(email, navbar.text)
+
+    def assert_logged_out(self, email):
+        self.browser.find_element_by_name('email')
+        navbar = self.browser.find_element_by_css_selector('.navbar')
+        self.assertNotIn(email, navbar.text)
+
     def check_for_row_in_list_table(self, row_text):
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
@@ -67,6 +77,12 @@ class FunctionalTest(StaticLiveServerTestCase):
         inputbox.send_keys(text)
         inputbox.send_keys(u'\ue007')
 
+        time.sleep(self.wait_time)
+
+    def send_email(self,email):
+        inputbox= self.browser.find_element_by_name('email')
+        inputbox.send_keys(email)
+        inputbox.send_keys(u'\ue007')
         time.sleep(self.wait_time)
 
     def build_browser(self):

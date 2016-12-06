@@ -1,4 +1,4 @@
-div.form {
+.form {
     text-align: center;
 }
 
@@ -7,8 +7,74 @@ div.form {
     padding: 0;
 }
 
-div.content {
+nav {
+    background-color: #a0a0c0;
+    color: white;
     position: relative;
+    left:0;
+    right:0;
+    margin-bottom: .5em;
+
+    height: 3em;
+    line-height: 3em;
+    padding: 1em;
+    padding-top: .5em;
+    padding-bottom: .5em;
+
+    * {
+	display: inline-block;
+    }
+
+    .navbar-brand {
+	font-size: 120%;
+    }
+
+    a {
+	color: white;
+    }
+
+    a:hover {
+	background-color: white;
+	color: #a0a0c0;
+    }
+
+    .right {
+	float: right;
+    }
+
+    .left {
+	float: left;
+    }
+
+}
+
+mark {
+    margin-top: .5em;
+    margin-bottom: .5em;
+    font-size: 90%;
+	
+    div {
+	padding: .3em;
+	position: relative;
+	width: 500px;
+	margin-left: auto;
+	margin-right: auto;
+    }
+
+    .success {
+	background: #e0e0f0;
+	color: #606090;
+    }
+    .warning {
+	background: #ffffc0;
+	color: #904040;
+    }
+}
+
+main {
+
+    margin-top: .5em;
+    margin-bottom: .5em;
 
     div.formbox {
 	position: relative;
@@ -36,7 +102,7 @@ div.content {
 	
     }
     
-    div.tablebox {
+    .tablebox {
 	width: 500px;
 	margin-left: auto;
 	margin-right: auto;

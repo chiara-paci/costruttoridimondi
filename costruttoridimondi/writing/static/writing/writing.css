@@ -1,14 +1,67 @@
-div.form {
+.form {
   text-align: center;
 }
 * {
   margin: 0;
   padding: 0;
 }
-div.content {
+nav {
+  background-color: #a0a0c0;
+  color: white;
   position: relative;
+  left: 0;
+  right: 0;
+  margin-bottom: .5em;
+  height: 3em;
+  line-height: 3em;
+  padding: 1em;
+  padding-top: .5em;
+  padding-bottom: .5em;
 }
-div.content div.formbox {
+nav * {
+  display: inline-block;
+}
+nav .navbar-brand {
+  font-size: 120%;
+}
+nav a {
+  color: white;
+}
+nav a:hover {
+  background-color: white;
+  color: #a0a0c0;
+}
+nav .right {
+  float: right;
+}
+nav .left {
+  float: left;
+}
+mark {
+  margin-top: .5em;
+  margin-bottom: .5em;
+  font-size: 90%;
+}
+mark div {
+  padding: .3em;
+  position: relative;
+  width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+mark .success {
+  background: #e0e0f0;
+  color: #606090;
+}
+mark .warning {
+  background: #ffffc0;
+  color: #904040;
+}
+main {
+  margin-top: .5em;
+  margin-bottom: .5em;
+}
+main div.formbox {
   position: relative;
   width: 500px;
   margin-left: auto;
@@ -16,34 +69,34 @@ div.content div.formbox {
   text-align: center;
   background-color: #f0f0f0;
 }
-div.content div.formbox h1 {
+main div.formbox h1 {
   padding: .5em;
   padding-top: 2em;
   font-size: 250%;
   color: #909090;
 }
-div.content div.formbox input {
+main div.formbox input {
   font-size: 150%;
   padding: .5em;
   margin: 1em;
 }
-div.content div.tablebox {
+main .tablebox {
   width: 500px;
   margin-left: auto;
   margin-right: auto;
   margin-top: 2em;
   color: #303030;
 }
-div.content div.tablebox table {
+main .tablebox table {
   border-collapse: collapse;
   width: 500px;
 }
-div.content div.tablebox tr {
+main .tablebox tr {
   border-bottom: 1px solid #e0e0e0;
   border-top: 1px solid #e0e0e0;
 }
-div.content div.tablebox td,
-div.content div.tablebox th {
+main .tablebox td,
+main .tablebox th {
   vertical-align: middle;
   padding-top: .5em;
   padding-bottom: .5em;
