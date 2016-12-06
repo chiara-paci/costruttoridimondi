@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "writing.apps.WritingConfig",
-    "profiles.apps.ProfilesConfig"
+    "profiles.apps.ProfilesConfig",
+    "functional_tests"
 ]
 
 AUTH_USER_MODEL = 'profiles.User'
