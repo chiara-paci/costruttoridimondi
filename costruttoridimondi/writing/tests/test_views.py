@@ -6,6 +6,9 @@ from django.core.urlresolvers import resolve
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.utils.html import escape
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 from .. import views
 from .. import models
@@ -33,7 +36,6 @@ class HomePageTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'writing/home.html')
 
-
     def test_validation_errors_are_shown_on_home_page(self):
         response = self.client.post('/writing/new', data={'text': ''})
         self.assertContains(response, escape(forms.EMPTY_SECTION_ERROR))
@@ -46,6 +48,13 @@ class HomePageTest(TestCase):
         self.assertEqual(models.Section.objects.count(), 1)
         new_section = models.Section.objects.first()
         self.assertEqual(new_section.text, 'A new section')
+
+    def test_story_owner_is_saved_if_user_is_authenticated(self):
+        user = User.objects.create(email='a@b.com')
+        self.client.force_login(user)  
+        self.client.post('/writing/new', data={'text': 'new item'})
+        story = models.Story.objects.first()
+        self.assertEqual(story.owner, user)
 
 class StoryViewTest(TestCase):
 
@@ -158,5 +167,12 @@ class StoryViewTest(TestCase):
 class MyStoriesTest(TestCase):
 
     def test_my_stories_url_renders_my_stories_template(self):
+        correct_user = User.objects.create(email='a@b.com')
         response = self.client.get('/writing/users/a@b.com/')
         self.assertTemplateUsed(response, 'writing/my_stories.html')
+
+    def test_passes_correct_owner_to_template(self):
+        User.objects.create(email='wrong@owner.com')
+        correct_user = User.objects.create(email='a@b.com')
+        response = self.client.get('/writing/users/a@b.com/')
+        self.assertEqual(response.context['owner'], correct_user)
