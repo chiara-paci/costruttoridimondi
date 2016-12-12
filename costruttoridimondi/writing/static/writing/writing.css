@@ -61,6 +61,26 @@ main {
   margin-top: .5em;
   margin-bottom: .5em;
 }
+main h1,
+main h2 {
+  position: relative;
+  width: 500px;
+  margin: 0;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #f0f0f0;
+  padding: 0;
+  color: #909090;
+}
+main h1 {
+  font-size: 250%;
+  text-align: center;
+  padding-top: 2em;
+}
+main h2 {
+  font-size: 150%;
+  text-align: center;
+}
 main div.formbox {
   position: relative;
   width: 500px;
@@ -68,12 +88,6 @@ main div.formbox {
   margin-right: auto;
   text-align: center;
   background-color: #f0f0f0;
-}
-main div.formbox h1 {
-  padding: .5em;
-  padding-top: 2em;
-  font-size: 250%;
-  color: #909090;
 }
 main div.formbox input {
   font-size: 150%;
@@ -84,12 +98,12 @@ main .tablebox {
   width: 500px;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 2em;
   color: #303030;
 }
 main .tablebox table {
   border-collapse: collapse;
   width: 500px;
+  margin-top: 1em;
 }
 main .tablebox tr {
   border-bottom: 1px solid #e0e0e0;

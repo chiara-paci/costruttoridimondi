@@ -155,3 +155,8 @@ class StoryViewTest(TestCase):
         self.assertTemplateUsed(response, 'writing/story.html')
         self.assertEqual(models.Section.objects.all().count(), 1)
 
+class MyStoriesTest(TestCase):
+
+    def test_my_stories_url_renders_my_stories_template(self):
+        response = self.client.get('/writing/users/a@b.com/')
+        self.assertTemplateUsed(response, 'writing/my_stories.html')

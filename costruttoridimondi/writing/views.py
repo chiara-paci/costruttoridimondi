@@ -30,4 +30,5 @@ def new_story(request):
         return redirect(story)
     return render(request, 'writing/home.html', {"form": form}) 
 
-
+def my_stories(request, email):
+    return render(request, 'writing/my_stories.html')
