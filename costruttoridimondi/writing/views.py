@@ -29,6 +29,9 @@ def new_story(request):
     form = forms.SectionForm(data=request.POST)  
     if form.is_valid():  
         story=models.Story.objects.create()
+        story = models.Story()
+        story.owner = request.user
+        story.save()
         form.save(for_story=story)
         return redirect(story)
     return render(request, 'writing/home.html', {"form": form}) 
