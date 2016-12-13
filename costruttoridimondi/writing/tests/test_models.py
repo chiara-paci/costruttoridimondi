@@ -1,12 +1,45 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 from .. import models
 
 class StoryModelTest(TestCase):
     def test_get_absolute_url(self):
         story = models.Story.objects.create()
         self.assertEqual(story.get_absolute_url(), '/writing/%d/' % (story.id,))
+
+    def test_create_new_creates_story_and_first_section(self):
+        models.Story.create_new(first_section_text='new section text')
+        new_section = models.Section.objects.first()
+        self.assertEqual(new_section.text, 'new section text')
+        new_story = models.Story.objects.first()
+        self.assertEqual(new_section.story, new_story)
+
+    def test_create_new_optionally_saves_owner(self):
+        user = User.objects.create()
+        models.Story.create_new(first_section_text='new section text', owner=user)
+        new_story = models.Story.objects.first()
+        self.assertEqual(new_story.owner, user)
+
+    def test_stories_can_have_owners(self):
+        models.Story(owner=User())  # should not raise
+
+    def test_story_owner_is_optional(self):
+        models.Story().full_clean()  # should not raise
+
+    def test_create_returns_new_story_object(self):
+        returned = models.Story.create_new(first_section_text='new section text')
+        new_story = models.Story.objects.first()
+        self.assertEqual(returned, new_story)
+
+    def test_story_name_is_first_section_text(self):
+        story = models.Story.objects.create()
+        models.Section.objects.create(story=story, text='first section')
+        models.Section.objects.create(story=story, text='second section')
+        self.assertEqual(story.name, 'first section')
 
 class SectionModelTest(TestCase):
     def test_default_text(self):

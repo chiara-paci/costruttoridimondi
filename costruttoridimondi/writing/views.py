@@ -25,17 +25,13 @@ def view_story(request,story_id):
             return redirect(story)
     return render(request, 'writing/story.html', {"story": story,"form": form})
 
-def new_story(request): 
-    form = forms.SectionForm(data=request.POST)  
-    if form.is_valid():  
-        story=models.Story.objects.create()
-        story = models.Story()
-        story.owner = request.user
-        story.save()
-        form.save(for_story=story)
-        return redirect(story)
-    return render(request, 'writing/home.html', {"form": form}) 
-
 def my_stories(request, email):
     owner = User.objects.get(email=email)
     return render(request, 'writing/my_stories.html', {"owner": owner})
+
+def new_story(request):
+    form = forms.NewStoryForm(data=request.POST)  
+    if form.is_valid():
+        story=form.save(owner=request.user)
+        return redirect(story)
+    return render(request,"writing/home.html",{"form": form})
