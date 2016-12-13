@@ -1,30 +1,12 @@
 from unittest import skip
 
-from django.conf import settings
 from django.contrib.auth import BACKEND_SESSION_KEY, SESSION_KEY, get_user_model
 from django.contrib.sessions.backends.db import SessionStore
 from . import base
-from .server_tools import create_session_on_server
-from .management.commands.create_session import create_pre_authenticated_session
 
 User = get_user_model()
 
 class MyListsTest(base.FunctionalTest):
-
-    def create_pre_authenticated_session(self, email):
-        if self.liveserver:
-            session_key = create_session_on_server(self.server_host, email)
-        else:
-            session_key = create_pre_authenticated_session(email)
-        ## to set a cookie we need to first visit the domain.
-        ## 404 pages load the quickest!
-        self.browser.get(self.server_url + "/404_no_such_url/")
-        self.wait_browser()
-        self.browser.add_cookie(dict(
-            name=settings.SESSION_COOKIE_NAME,
-            value=session_key, 
-            path='/',
-        ))
 
     def test_create_pre_authenticated_session(self):
         email = 'edith@example.com'
@@ -50,12 +32,11 @@ class MyListsTest(base.FunctionalTest):
         first_story_url = self.browser.current_url
 
         # She notices a "My stories" link, for the first time.
-        self.browser.find_element_by_link_text('My stories').click()
-        self.wait_browser()
+        self.click_on_link("My stories")
 
         # She sees that her story is in there, named according to its
         # first story item
-        self.browser.find_element_by_link_text('Reticulate splines').click()
+        self.click_on_link("Reticulate splines")
         self.assertEqual(self.browser.current_url, first_story_url)
 
         # She decides to start another story, just to see
@@ -64,17 +45,13 @@ class MyListsTest(base.FunctionalTest):
         second_story_url = self.browser.current_url
 
         # Under "my stories", her new story appears
-        self.browser.find_element_by_link_text('My stories').click()
-        self.wait_browser()
-
-        self.browser.find_element_by_link_text('Click cows').click()
-        self.wait_browser()
+        self.click_on_link("My stories")
+        self.click_on_link("Click cows")
 
         self.assertEqual(self.browser.current_url, second_story_url)
 
         # She logs out.  The "My stories" option disappears
-        self.browser.find_element_by_link_text('Log out').click()
-        self.wait_browser()
+        self.click_on_link("Log out")
 
         self.assertEqual(
             self.browser.find_elements_by_link_text('My stories'),
