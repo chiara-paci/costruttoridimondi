@@ -14,7 +14,8 @@
       <div class="right">
 	{% if user.email %}
 	Logged in as {{ user.email }}
-        <a href="{% url 'logout' %}">Log out</a>
+	<a href="{% url 'my_stories' user.email %}">My stories</a>
+	<a href="{% url 'logout' %}">Log out</a>
 	{% else %}
 	<form class="navbar-form navbar-right" method="POST" action="{% url 'send_login_email' %}">
           <span>Enter email to log in:</span>
@@ -38,9 +39,10 @@
     {% endif %}
 
     <main class="content">
+      <h1>{% block header_text %}{% endblock %}</h1>
+
+      {% block formbox %}
       <div class="formbox">
-	<h1>{% block header_text %}{% endblock %}</h1>
-	
 	<div class="form">
 	  <form method="POST" action="{% block form_action %}{% endblock %}" novalidate="">
 	    {{ form.text }}
@@ -51,6 +53,7 @@
 	  </form>
 	</div>
       </div>
+      {% endblock formbox %}
       
       <div class="tablebox">
 	{% block table %}

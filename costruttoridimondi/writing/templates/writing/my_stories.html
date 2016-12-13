@@ -1,0 +1,17 @@
+{% extends './base.html' %}
+
+{% block header_text %}My Stories{% endblock %}
+
+{% block formbox %}{% endblock %}
+
+{% block table %}
+
+<h2>{{ owner.email }}'s lists</h2>  
+
+<table id="id_story_table">
+  {% for story in owner.story_set.all %}  
+  <tr><td><a href="{{ story.get_absolute_url }}">{{ story.name }}</a></td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
+

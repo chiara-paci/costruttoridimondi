@@ -13,6 +13,10 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core import mail
 
 from .server_tools import reset_database
+from .server_tools import create_session_on_server
+from .management.commands.create_session import create_pre_authenticated_session
+
+from django.conf import settings
 
 BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(os.path.dirname(BASE_DIR))
@@ -137,7 +141,7 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.assertNotIn(email, navbar.text)
 
     def check_for_row_in_list_table(self, row_text):
-        table = self.browser.find_element_by_id('id_list_table')
+        table = self.browser.find_element_by_id('id_story_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertIn(row_text, [row.text for row in rows])
 
@@ -148,6 +152,10 @@ class FunctionalTest(StaticLiveServerTestCase):
     def get_error_box(self):
         error = self.browser.find_element_by_css_selector('.has-error')
         return error
+
+    def click_on_link(self,txt):
+        self.browser.find_element_by_link_text(txt).click()
+        self.wait_browser()
 
     def add_section(self,text):
         inputbox = self.get_section_inputbox()
@@ -170,4 +178,19 @@ class FunctionalTest(StaticLiveServerTestCase):
         browser = webdriver.Firefox(firefox_binary=FirefoxBinary(firefox_path=self.firefox_path))
         #browser.implicitly_wait(30)
         return browser
+
+    def create_pre_authenticated_session(self, email):
+        if self.liveserver:
+            session_key = create_session_on_server(self.server_host, email)
+        else:
+            session_key = create_pre_authenticated_session(email)
+        ## to set a cookie we need to first visit the domain.
+        ## 404 pages load the quickest!
+        self.browser.get(self.server_url + "/404_no_such_url/")
+        self.wait_browser()
+        self.browser.add_cookie(dict(
+            name=settings.SESSION_COOKIE_NAME,
+            value=session_key, 
+            path='/',
+        ))
 

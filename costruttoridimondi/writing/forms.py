@@ -20,10 +20,6 @@ class SectionForm(forms.models.ModelForm):
             'text': {'required': EMPTY_SECTION_ERROR}
         }
 
-    def save(self, for_story):
-        self.instance.story = for_story
-        return super().save()
-
 class ExistingStorySectionForm(SectionForm):
     def __init__(self,for_story,*args,**kwargs):
         super().__init__(*args,**kwargs)
@@ -36,5 +32,12 @@ class ExistingStorySectionForm(SectionForm):
             e.error_dict = {'text': [DUPLICATE_SECTION_ERROR]}
             self._update_errors(e)
 
-    def save(self):
-        return forms.models.ModelForm.save(self)
+
+class NewStoryForm(SectionForm): 
+    def save(self,owner):
+        if owner.is_authenticated:
+            return models.Story.create_new(first_section_text=self.cleaned_data['text'], owner=owner)
+        return models.Story.create_new(first_section_text=self.cleaned_data['text'])
+
+            
+

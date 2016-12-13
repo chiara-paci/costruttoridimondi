@@ -1,5 +1,7 @@
-from unittest import skip
+import unittest
 
+from unittest import skip
+from unittest.mock import patch,Mock
 from django.test import TestCase
 
 from .. import forms
@@ -17,14 +19,6 @@ class SectionFormTest(TestCase):
             form.errors['text'],
             [forms.EMPTY_SECTION_ERROR]
         )
-
-    def test_form_save_handles_saving_to_a_story(self):
-        story=models.Story.objects.create()    
-        form = forms.SectionForm(data={'text': 'do me'})
-        new_section = form.save(for_story=story)
-        self.assertEqual(new_section, models.Section.objects.first())
-        self.assertEqual(new_section.text, 'do me')
-        self.assertEqual(new_section.story, story)
 
     @skip
     def test_form_validation_for_duplicate_sections(self):
@@ -71,3 +65,31 @@ class ExistingStorySectionFormTest(TestCase):
         form = forms.ExistingStorySectionForm(story, data={'text': 'hi'})
         new_item = form.save()
         self.assertEqual(new_item, models.Section.objects.all()[0])
+
+
+class NewStoryFormTest(unittest.TestCase):
+    @patch('writing.forms.models.Story.create_new')
+    def test_save_creates_new_story_from_post_data_if_user_not_authenticated(self, mock_Story_create_new):
+        user = Mock(is_authenticated=False)
+        form = forms.NewStoryForm(data={'text': 'new section text'})
+        form.is_valid()
+        form.save(owner=user)
+        mock_Story_create_new.assert_called_once_with(first_section_text='new section text')
+
+    @patch('writing.forms.models.Story.create_new')
+    def test_save_creates_new_story_with_owner_if_user_authenticated(self, mock_Story_create_new):
+        user = Mock(is_authenticated=True)
+        form = forms.NewStoryForm(data={'text': 'new section text'})
+        form.is_valid()
+        form.save(owner=user)
+        mock_Story_create_new.assert_called_once_with(first_section_text='new section text', 
+                                                      owner=user)
+
+        
+    @patch('writing.forms.models.Story.create_new')
+    def test_save_returns_new_story_object(self, mock_Story_create_new):
+        user = Mock(is_authenticated=True)
+        form = forms.NewStoryForm(data={'text': 'new section text'})
+        form.is_valid()
+        response = form.save(owner=user)
+        self.assertEqual(response, mock_Story_create_new.return_value)
