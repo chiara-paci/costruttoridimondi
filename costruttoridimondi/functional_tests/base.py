@@ -7,16 +7,17 @@ from unittest import skip
 from selenium import webdriver
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import WebDriverException
 
 from django.test import LiveServerTestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core import mail
+from django.conf import settings
 
 from .server_tools import reset_database
 from .server_tools import create_session_on_server
 from .management.commands.create_session import create_pre_authenticated_session
 
-from django.conf import settings
 
 BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(os.path.dirname(BASE_DIR))
@@ -24,9 +25,40 @@ PARENT_DIR = os.path.dirname(os.path.dirname(BASE_DIR))
 GECKODRIVER_BIN = os.path.join( PARENT_DIR, 'bin' )
 os.environ["PATH"]+=":"+GECKODRIVER_BIN
 
-class FunctionalTest(StaticLiveServerTestCase):  
+class Browser(webdriver.Firefox):
     firefox_path = "/usr/local/firefox/firefox"
+
+    def __init__(self,wait_time=1):
+        webdriver.Firefox.__init__(self,firefox_binary=FirefoxBinary(firefox_path=self.firefox_path))
+        self.wait_time=1
+
+    def wait_page(self):
+        time.sleep(self.wait_time)
+
+    def add_session(self,email,session_key,final_url):
+        ## to set a cookie we need to first visit the domain.
+        ## 404 pages load the quickest!
+        self.get(final_url+"/404-not-found")
+        self.wait_page()
+        self.add_cookie(dict(
+            name=settings.SESSION_COOKIE_NAME,
+            value=session_key, 
+            path='/',
+        ))
+        self.get(final_url)
+        self.wait_page()
+        
+
+class FunctionalTest(StaticLiveServerTestCase):  
     wait_time=1
+
+    def build_browser(self):
+        browser = Browser(wait_time=self.wait_time)
+        return browser
+
+    def restart_browser(self):
+        self.browser.quit()
+        self.browser = Browser(wait_time=self.wait_time)
 
     @classmethod
     def setUpClass(cls):  
@@ -55,14 +87,24 @@ class FunctionalTest(StaticLiveServerTestCase):
     def setUp(self):  
         if self.liveserver:
             reset_database(self.server_host)
-        self.browser = self.build_browser()
+        self.browser = Browser(wait_time=self.wait_time)
 
     def tearDown(self):  
         self.browser.quit()
 
+    def wait_for(self, function_with_assertion, timeout=-1):
+        if timeout<=0: timeout=self.wait_time
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            try:
+                return function_with_assertion()
+            except (AssertionError, WebDriverException):
+                time.sleep(0.1)
+        # one more try, which will raise any errors if they are outstanding
+        return function_with_assertion()
+
     def wait_browser(self):
         time.sleep(self.wait_time)
-
 
     def wait_for_email(self, test_email, subject):
         if not self.liveserver:
@@ -84,26 +126,6 @@ class FunctionalTest(StaticLiveServerTestCase):
         body=fd.read()
         fd.close()
         return body
-        
-        # try:
-        #     inbox.user(test_email)
-        #     inbox.pass_(os.environ['YAHOO_PASSWORD'])
-        #     while time.time() - start < 60:
-        #         count, _ = inbox.stat()
-        #         for i in reversed(range(max(1, count - 10), count + 1)):
-        #             print('getting msg', i)
-        #             _, lines, __ = inbox.retr(i)
-        #             lines = [l.decode('utf8') for l in lines]
-        #             print(lines)
-        #             if subject_line in lines:
-        #                 email_id = i
-        #                 body = '\n'.join(lines)
-        #                 return body
-        #         time.sleep(5)
-        # finally:
-        #     if email_id:
-        #         inbox.dele(email_id)
-        #     inbox.quit()
 
     def wait_for_email_pop3(self, test_email, subject):
         subject_line = 'Subject: {}'.format(subject)
@@ -130,67 +152,63 @@ class FunctionalTest(StaticLiveServerTestCase):
                 inbox.dele(email_id)
             inbox.quit()
 
-    def assert_logged_in(self, email):
-        self.browser.find_element_by_link_text('Log out')
-        navbar = self.browser.find_element_by_css_selector('.navbar')
-        self.assertIn(email, navbar.text)
-
-    def assert_logged_out(self, email):
-        self.browser.find_element_by_name('email')
-        navbar = self.browser.find_element_by_css_selector('.navbar')
-        self.assertNotIn(email, navbar.text)
-
-    def check_for_row_in_list_table(self, row_text):
-        table = self.browser.find_element_by_id('id_story_table')
-        rows = table.find_elements_by_tag_name('tr')
-        self.assertIn(row_text, [row.text for row in rows])
-
-    def get_section_inputbox(self):
-        inputbox = self.browser.find_element_by_id('id_text')
-        return inputbox
-
-    def get_error_box(self):
-        error = self.browser.find_element_by_css_selector('.has-error')
-        return error
-
-    def click_on_link(self,txt):
-        self.browser.find_element_by_link_text(txt).click()
-        self.wait_browser()
-
-    def add_section(self,text):
-        inputbox = self.get_section_inputbox()
-        self.assertEqual(
-            inputbox.get_attribute('placeholder'),
-            'Enter a section'
-        )
-        inputbox.send_keys(text)
-        inputbox.send_keys(u'\ue007')
-
-        self.wait_browser()
-
-    def send_email(self,email):
-        inputbox= self.browser.find_element_by_name('email')
-        inputbox.send_keys(email)
-        inputbox.send_keys(u'\ue007')
-        self.wait_browser()
-
-    def build_browser(self):
-        browser = webdriver.Firefox(firefox_binary=FirefoxBinary(firefox_path=self.firefox_path))
-        #browser.implicitly_wait(30)
-        return browser
-
-    def create_pre_authenticated_session(self, email):
+    def get_session_key(self,email):
         if self.liveserver:
             session_key = create_session_on_server(self.server_host, email)
         else:
             session_key = create_pre_authenticated_session(email)
-        ## to set a cookie we need to first visit the domain.
-        ## 404 pages load the quickest!
-        self.browser.get(self.server_url + "/404_no_such_url/")
-        self.wait_browser()
-        self.browser.add_cookie(dict(
-            name=settings.SESSION_COOKIE_NAME,
-            value=session_key, 
-            path='/',
-        ))
+        return session_key
+
+    def create_session(self,email):
+        session_key=self.get_session_key(email)
+        self.browser.add_session(email,session_key,self.server_url)
+
+    def create_pre_authenticated_session(self, browser, email, final_url=None):
+        if final_url==None: final_url=self.server_url
+        session_key=self.get_session_key(email)
+        browser.add_session(email,session_key,final_url)
+
+class MultiuserFunctionalTest(FunctionalTest):
+    def create_user_browser_with_session(self,email,size=None,position=None):
+        user_browser = Browser(wait_time=self.wait_time)
+        if email in self.browsers.keys():
+            self.browsers[email].quit()
+        if size: 
+            w,h=size
+            user_browser.set_window_size(w,h)
+        if position: 
+            x,y=position
+            user_browser.set_window_position(x,y)
+        session_key=self.get_session_key(email)
+        user_browser.add_session(email,session_key,self.server_url)
+        self.browsers[email]=user_browser
+        return user_browser
+
+    def set_browser(self,email,size=None,position=None):
+        if email in self.browsers.keys():
+            self.browser=self.browsers[email]
+            if size: 
+                w,h=size
+                self.browser.set_window_size(w,h)
+            if position: 
+                x,y=position
+                self.browser.set_window_position(x,y)
+            return 
+        kwargs={}
+        if size: kwargs["size"]=size
+        if position: kwargs["position"]=position
+        self.browser=self.create_user_browser_with_session(email,**kwargs)
+
+    def setUp(self):  
+        if self.liveserver:
+            reset_database(self.server_host)
+        self.browsers = {}
+        self.browser = None
+
+    def tearDown(self):  
+        for browser in self.browsers.values():
+            try:
+                browser.quit()
+            except:
+                pass
 
