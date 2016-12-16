@@ -1,28 +1,25 @@
-import time
-
 from unittest import skip
 
-from . import base
+from . import base,pages
 
 class LayoutAndStylingTest(base.FunctionalTest):  
+    #wait_time=1
 
     def test_layout_and_styling(self):
-        # Edith goes to the home page
-        self.browser.get(self.server_url)
-        self.browser.set_window_size(1024, 768)
+        self.browser.set_window_size(1024,768)
 
-        # She notices the input box is nicely centered
-        inputbox = self.browser.find_element_by_id('id_text')
-        time.sleep(self.wait_time)
+        home=pages.HomePage(self).go_to_home_page()
+        inputbox=home.get_section_input()
+
         self.assertAlmostEqual(
             inputbox.location['x'] + inputbox.size['width'] / 2,
             512,
             delta=5
         )
     
-        self.add_section("testing")
+        story_page=home.start_new_story("testing")
+        inputbox=story_page.get_section_input()
 
-        inputbox = self.browser.find_element_by_id('id_text')
         self.assertAlmostEqual(
             inputbox.location['x'] + inputbox.size['width'] / 2,
             512,

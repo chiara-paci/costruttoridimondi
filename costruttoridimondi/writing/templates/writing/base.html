@@ -9,7 +9,7 @@
 
     <nav class="navbar navbar-default">
       <div class="left">
-	<a class="navbar-brand" href="/">Costruttori di Mondi</a>
+	<a class="navbar-brand" href="/">CM</a>
       </div>
       <div class="right">
 	{% if user.email %}
@@ -39,7 +39,10 @@
     {% endif %}
 
     <main class="content">
+      <div class="title">
       <h1>{% block header_text %}{% endblock %}</h1>
+      {% block subtitle %}{% endblock %}
+      </div>
 
       {% block formbox %}
       <div class="formbox">

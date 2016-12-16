@@ -25,6 +25,13 @@ def view_story(request,story_id):
             return redirect(story)
     return render(request, 'writing/story.html', {"story": story,"form": form})
 
+def share_story(request,story_id):
+    story=models.Story.objects.get(id=story_id)
+    if request.method == 'POST':
+        email=request.POST["share"]
+        story.share_with(email)
+    return redirect(story)
+
 def my_stories(request, email):
     owner = User.objects.get(email=email)
     return render(request, 'writing/my_stories.html', {"owner": owner})
@@ -35,3 +42,4 @@ def new_story(request):
         story=form.save(owner=request.user)
         return redirect(story)
     return render(request,"writing/home.html",{"form": form})
+

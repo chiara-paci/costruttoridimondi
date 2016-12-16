@@ -2,7 +2,7 @@ import re
 import time
 
 
-from . import base
+from . import base,pages
 
 TEST_EMAIL = 'edith@example.com'
 SUBJECT = 'Your login link for Costruttori di Mondi'
@@ -15,43 +15,35 @@ class LoginTest(base.FunctionalTest):
         # and notices a "Log in" section in the navbar for the first time
         # It's telling her to enter her email address, so she does
 
-        self.browser.get(self.server_url)
-        self.send_email(TEST_EMAIL)
+        home=pages.HomePage(self).go_to_home_page().login_request(TEST_EMAIL)
 
         # A message appears telling her an email has been sent
-        body = self.browser.find_element_by_tag_name('body')
-        self.assertIn('Check your email', body.text)
+
+        self.assertTrue(home.email_has_sent())
 
         # She checks her email and finds a message
-        #email = mail.outbox[0]  
-        body = self.wait_for_email(TEST_EMAIL, SUBJECT)
-
-        print(type(body))
+        email_msg = self.wait_for_email(TEST_EMAIL, SUBJECT)
 
         #self.assertIn(TEST_EMAIL, email.to)
         #self.assertEqual(email.subject, SUBJECT)
 
         # It has a url link in it
-        self.assertIn('Use this link to log in', body)
-        url_search = re.search(r'http://.+/.+', body)
+        self.assertIn('Use this link to log in', email_msg)
+        url_search = re.search(r'http://.+/.+', email_msg)
         if not url_search:
-            self.fail(
-                'Could not find url in email body:\n{}'.format(body)
-            )
+            self.fail('Could not find url in email body:\n{}'.format(email_msg))
         url = url_search.group(0)
         self.assertIn(self.server_url, url)
 
         # she clicks it
-        self.browser.get(url)
-        self.wait_browser()
+
+        login_page=home.login(url)
 
         # she is logged in!
-        self.assert_logged_in(email=TEST_EMAIL)
+        self.assertTrue(login_page.is_logged_in_user(TEST_EMAIL))
 
         # Now she logs out
-        self.browser.find_element_by_link_text('Log out').click()
-        self.wait_browser()
+        new_page=login_page.logout()
 
         # She is logged out
-        self.assert_logged_out(email=TEST_EMAIL)
-        self.wait_browser()
+        self.assertTrue(new_page.is_logged_out_user(TEST_EMAIL))
