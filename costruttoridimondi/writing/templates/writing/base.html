@@ -39,7 +39,10 @@
     {% endif %}
 
     <main class="content">
+      <div class="title">
       <h1>{% block header_text %}{% endblock %}</h1>
+      {% block subtitle %}{% endblock %}
+      </div>
 
       {% block formbox %}
       <div class="formbox">

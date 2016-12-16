@@ -1,8 +1,10 @@
 {% extends "writing/base.html" %}
 
-{% block header_text %}Your story{% endblock %}
+{% block header_text %}{{ story.name }}{% endblock %}
 
 {% block form_action %}{% url "view_story" story.id %}{% endblock %}
+
+{% block subtitle %}<h2>A <span id="id_story_owner">{{ story.owner.email }}</span>'s story</h2>{% endblock %}
 
 {% block table %}
 <table id="id_story_table">
@@ -10,6 +12,20 @@
   <tr><td>{{ forloop.counter }}: {{ section.text }}</td></tr>
   {% endfor %}
 </table>
+
+<h2>Story shared with</h2>
+
+<ul>
+  {% for friend in story.shared_with.all %}
+  <li class="story-shared">{{ friend.email }}</li>
+  {% endfor %}
+</ul>
+
+<form method="POST" action="/writing/{{ story.id }}/share" novalidate="">
+  <p>Share with: <input name="share" type="text" placeholder="your-friend@example.com"/></p>
+  {% csrf_token %}
+</form>
+
 {% endblock %}
 
 

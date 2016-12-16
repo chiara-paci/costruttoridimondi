@@ -1,3 +1,6 @@
+from unittest import skip
+import collections
+
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 
@@ -40,6 +43,46 @@ class StoryModelTest(TestCase):
         models.Section.objects.create(story=story, text='first section')
         models.Section.objects.create(story=story, text='second section')
         self.assertEqual(story.name, 'first section')
+
+    def test_mock_view_share_with_method(self): 
+        story = models.Story.objects.create()
+        self.assertTrue(hasattr(story,"share_with"))
+        self.assertTrue(callable(story.share_with))
+        story.share_with("prova@pinco.pallo.it") # should not raise
+
+    def test_template_has_shared_with_all(self):
+        story = models.Story.objects.create()
+        self.assertTrue(hasattr(story,"shared_with"))
+        self.assertTrue(hasattr(story.shared_with,"all"))
+        self.assertTrue(callable(story.shared_with.all))
+        L=story.shared_with.all()
+        self.assertTrue(isinstance(L,collections.Iterable))
+
+    def test_share_with_add_a_new_user_if_not_exists(self):
+        owner=User.objects.create(email="owner@example.com")
+        story=models.Story.objects.create(owner=owner)
+        self.assertEqual(User.objects.count(),1)
+        story.share_with("unknown@example.com")
+        self.assertEqual(User.objects.count(),2)
+        newuser=User.objects.last()
+        self.assertEqual(newuser.email,"unknown@example.com")
+
+    def test_share_with_add_an_old_user_if_exists(self):
+        owner=User.objects.create(email="owner@example.com")
+        friend=User.objects.create(email="friend@example.com")
+        story=models.Story.objects.create(owner=owner)
+        self.assertEqual(User.objects.count(),2)
+        story.share_with("friend@example.com")
+        self.assertEqual(User.objects.count(),2)
+        
+    def test_share_with_add_a_friend_to_shared_with(self):
+        owner=User.objects.create(email="owner@example.com")
+        friend=User.objects.create(email="friend@example.com")
+        story=models.Story.objects.create(owner=owner)
+        self.assertEqual(story.shared_with.all().count(),0)
+        story.share_with(friend.email)
+        self.assertEqual(story.shared_with.all().count(),1)
+        self.assertEqual(story.shared_with.all().first(),friend)        
 
 class SectionModelTest(TestCase):
     def test_default_text(self):
@@ -114,3 +157,4 @@ class SectionModelTest(TestCase):
     def test_string_representation(self):
         section = models.Section(text='some text')
         self.assertEqual(str(section), 'some text')
+

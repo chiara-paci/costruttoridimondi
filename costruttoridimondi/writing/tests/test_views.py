@@ -231,3 +231,26 @@ class NewStoryViewUnitTest(unittest.TestCase):
         mock_form.is_valid.return_value = False
         views.new_story(self.request)
         self.assertFalse(mock_form.save.called)
+
+class ShareViewTest(TestCase):
+    ## ok
+    def test_post_redirects_to_story_view(self):
+        story = models.Story.objects.create()
+        response = self.client.post(
+            '/writing/%d/share' % (story.id,),
+            data={'email': 'pinco@pallino.org'}
+        )
+        self.assertRedirects(response, '/writing/%d/' % (story.id,))
+
+    @patch('writing.views.models.Story.share_with')  
+    def test_post_add_shared_email(self,mock_share_with):
+        story = models.Story.objects.create()
+        email_test='pinco@pallino.org'
+        response = self.client.post(
+            '/writing/%d/share' % (story.id,),
+            data={'email': email_test}
+        )
+        mock_share_with.assert_called_once_with(email_test)
+        #self.assertRedirects(response, '/writing/%d/' % (story.id,))
+        
+        pass
